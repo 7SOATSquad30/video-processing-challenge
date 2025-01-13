@@ -5,7 +5,9 @@
 - tflocal
 
 ### Como rodar (local)
+```
 docker-compose up -d
 tflocal init
 tflocal plan
 tflocal apply
+```
