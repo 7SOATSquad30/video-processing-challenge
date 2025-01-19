@@ -8,9 +8,4 @@ resource "aws_dynamodb_table" "video_processing_files" {
     name = var.dynamodb_partition_key
     type = "S"
   }
-
-  attribute {
-    name = "status"
-    type = "S"
-  }
 }
