@@ -10,6 +10,13 @@ module "s3" {
   s3_bucket_name = var.s3_bucket_name
 }
 
+# Connect the DynamoDB module
+module "dynamodb" {
+  source                 = "./modules/dynamodb"
+  dynamodb_table_name    = var.dynamodb_table_name
+  dynamodb_partition_key = var.dynamodb_partition_key
+}
+
 resource "aws_sqs_queue" "videos_to_process" {
   name = var.sqs_queue_name
 }

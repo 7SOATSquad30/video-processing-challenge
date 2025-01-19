@@ -16,6 +16,18 @@ variable "s3_bucket_name" {
   default     = "video-processing-files"
 }
 
+# DynamodB table name
+variable "dynamodb_table_name" {
+  description = "DynamodB table name"
+  default     = "video-processing-files"
+}
+
+# DynamodB partition key
+variable "dynamodb_partition_key" {
+  description = "DynamodB partition key"
+  default     = "video_id"
+}
+
 variable "sqs_queue_name" {
   default = "videos-to-process"
 }
