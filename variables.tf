@@ -28,6 +28,14 @@ variable "dynamodb_partition_key" {
   default     = "video_id"
 }
 
+# SQS queue name
 variable "sqs_queue_name" {
-  default = "videos-to-process"
+  description = "SQS queue name"
+  default     = "videos-to-process"
+}
+
+# SQS Dead-letter queue name
+variable "sqs_dlq_name" {
+  description = "SQS Dead-letter queue name"
+  default     = "videos-to-process-dlq"
 }

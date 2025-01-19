@@ -17,6 +17,9 @@ module "dynamodb" {
   dynamodb_partition_key = var.dynamodb_partition_key
 }
 
-resource "aws_sqs_queue" "videos_to_process" {
-  name = var.sqs_queue_name
+# Connect the SQS module
+module "sqs" {
+  source         = "./modules/sqs"
+  sqs_queue_name = var.sqs_queue_name
+  sqs_dlq_name   = var.sqs_dlq_name
 }
