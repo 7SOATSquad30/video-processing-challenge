@@ -10,8 +10,10 @@ variable "aws_secret_key" {
   default = "test"
 }
 
+# S3 bucket name
 variable "s3_bucket_name" {
-  default = "video-processing-files"
+  description = "S3 bucket name"
+  default     = "video-processing-files"
 }
 
 variable "sqs_queue_name" {

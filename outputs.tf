@@ -1,5 +1,13 @@
+# S3 bucket ID
+output "s3_bucket_id" {
+  description = "S3 bucket ID"
+  value       = module.s3.s3_bucket_id
+}
+
+# S3 bucket ARN
 output "s3_bucket_arn" {
-  value = aws_s3_bucket.video_processing_files.arn
+  description = "S3 bucket ARN"
+  value       = module.s3.s3_bucket_arn
 }
 
 output "sqs_queue_url" {
