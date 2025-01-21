@@ -39,3 +39,9 @@ variable "sqs_dlq_name" {
   description = "SQS Dead-letter queue name"
   default     = "videos-to-process-dlq"
 }
+
+# SNS topic name
+variable "sns_topic_name" {
+  description = "SNS topic name"
+  default     = "videos-processed-topic"
+}

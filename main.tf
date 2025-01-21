@@ -23,3 +23,9 @@ module "sqs" {
   sqs_queue_name = var.sqs_queue_name
   sqs_dlq_name   = var.sqs_dlq_name
 }
+
+# Connect the SNS module
+module "sns" {
+  source         = "./modules/sns"
+  sns_topic_name = var.sns_topic_name
+}

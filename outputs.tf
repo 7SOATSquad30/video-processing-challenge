@@ -45,3 +45,15 @@ output "sqs_dlq_arn" {
   description = "SQS Dead-letter queue ARN"
   value       = module.sqs.sqs_dlq_arn
 }
+
+# SNS topic ID
+output "sns_topic_id" {
+  description = "SNS topic ID"
+  value       = module.sns.sns_topic_id
+}
+
+# SNS topic ARN
+output "sns_topic_arn" {
+  description = "SNS topic ARN"
+  value       = module.sns.sns_topic_arn
+}
