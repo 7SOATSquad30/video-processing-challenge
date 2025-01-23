@@ -1,5 +1,8 @@
+# Region
 variable "aws_region" {
-  default = "us-east-1"
+  description = "AWS region to create resources"
+  type        = string
+  default     = "us-east-1"
 }
 
 variable "aws_access_key" {
@@ -44,4 +47,32 @@ variable "sqs_dlq_name" {
 variable "sns_topic_name" {
   description = "SNS topic name"
   default     = "videos-processed-topic"
+}
+
+# Email address
+variable "ses_email_address" {
+  description = "The email address to use for SES verification"
+}
+
+# SES domain identity name
+variable "ses_domain_identity_name" {
+  description = "SES domain identity name"
+}
+
+# SES identity policy
+variable "ses_identity_policy_name" {
+  description = "SES identity policy"
+  default     = "video-processing-identity-policy"
+}
+
+# SMTP credentials for SES
+variable "ses_smtp_user_name" {
+  description = "SMTP credentials for SES"
+  default     = "video-processing-smtp-user"
+}
+
+# SMTP user policy
+variable "ses_smtp_policy_name" {
+  description = "SMTP user policy"
+  default     = "video-processing-smtp-policy"
 }

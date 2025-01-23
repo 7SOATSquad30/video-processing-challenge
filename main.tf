@@ -29,3 +29,13 @@ module "sns" {
   source         = "./modules/sns"
   sns_topic_name = var.sns_topic_name
 }
+
+# Connect the SES module
+module "ses" {
+  source                   = "./modules/ses"
+  ses_email_address        = var.ses_email_address
+  ses_domain_identity_name = var.ses_domain_identity_name
+  ses_identity_policy_name = var.ses_identity_policy_name
+  ses_smtp_user_name       = var.ses_smtp_user_name
+  ses_smtp_policy_name     = var.ses_smtp_policy_name
+}

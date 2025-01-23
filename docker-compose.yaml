@@ -16,7 +16,7 @@ services:
     image: localstack/localstack:latest
     container_name: localstack
     environment:
-      SERVICES: "dynamodb,lambda,s3,ses,sns,sqs,ssm,sts"
+      SERVICES: "dynamodb,iam,lambda,s3,ses,sns,sqs,ssm,sts"
       EDGE_PORT: 4566
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test

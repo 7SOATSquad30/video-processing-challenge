@@ -57,3 +57,27 @@ output "sns_topic_arn" {
   description = "SNS topic ARN"
   value       = module.sns.sns_topic_arn
 }
+
+# SES email identity ID
+output "ses_email_identity_id" {
+  description = "SES email identity ID"
+  value       = module.ses.ses_email_identity_id
+}
+
+# SES email identity ARN
+output "ses_email_identity_arn" {
+  description = "SES email identity ARN"
+  value       = module.ses.ses_email_identity_arn
+}
+
+# SES domain identity ID
+output "ses_identity_id" {
+  description = "SES domain identity ID"
+  value       = module.ses.ses_domain_identity_id
+}
+
+# SES domain identity ARN
+output "ses_identity_arn" {
+  description = "SES domain identity ARN"
+  value       = module.ses.ses_domain_identity_arn
+}
