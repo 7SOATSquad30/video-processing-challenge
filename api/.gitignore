@@ -6,4 +6,7 @@ terraform.*
 
 node_modules/*
 uploads/*
+
 .history/*
+
+dist/*

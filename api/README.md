@@ -1,16 +1,4 @@
-### Pré-requisitos
-- docker
-- docker-compose
-- terraform
-- tflocal
-
-### Como rodar (local)
-```
-docker-compose up -d
-tflocal init
-tflocal plan
-tflocal apply
-```
+# Upload Lambda
 
 ## - Lambda API [Producer]
   - POST /users/{}/videos/process
