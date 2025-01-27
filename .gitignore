@@ -1,5 +1,12 @@
-.postgres_data/
-.terraform/
 .localstack-data/
-.terraform*
-terraform.*
+
+/**/*.zip
+/**/*.xzx
+/**/*.tar
+
+src/lambda-video-processing/package/
+src/lambda-video-processing/ffmpeg-layer/
+
+src/infra/**/.terraform/
+src/infra/**/.terraform.lock.hcl
+src/infra/**/terraform.tfstate
