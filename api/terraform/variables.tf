@@ -11,5 +11,9 @@ variable "aws_secret_key" {
 }
 
 variable "s3_bucket_name" {
-  default = "video-raw-files"
+  default = "video-processing-files"
+}
+
+variable "sqs_queue_name" {
+  default = "videos-to-process"
 }
