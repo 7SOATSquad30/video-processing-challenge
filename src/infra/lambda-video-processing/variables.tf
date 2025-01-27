@@ -22,10 +22,9 @@ variable "output_s3_bucket" {
   default     = "teste-arquivos-videos"
 }
 
-variable "sqs_queue_arn" {
-  description = "ARN da fila SQS para acionar a Lambda"
+variable "sqs_queue_name" {
   type        = string
-  default     = "arn:aws:sqs:us-east-1:691714441051:sqs-processamento-video"
+  default     = "sqs-processamento-video"
 }
 
 variable "ses_source_email" {
