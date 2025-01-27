@@ -5,6 +5,8 @@
 - tflocal
 
 ### Como rodar local
+
+Windows:
 ```
 docker-compose up -d
 export AWS_ENDPOINT_URL="http://localhost:4566"
@@ -22,4 +24,13 @@ make -C ./src/lambda-video-processing build-ffmpeg-layer
 
 tflocal -chdir="./src/infra/lambda-video-processing" init -backend-config="force_path_style=true"
 tflocal -chdir="./src/infra/lambda-video-processing" apply
+
+docker-compose logs -f
+```
+
+Linux ou MacOS:
+```
+make infrastructure/up
+make deploy/dev
+make logs
 ```
