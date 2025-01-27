@@ -63,8 +63,12 @@ resource "aws_lambda_layer_version" "ffmpeg_layer" {
   s3_key    = var.object_key_ffmpeg
 }
 
+data "aws_sqs_queue" "video_processing_queue" {
+  name = var.sqs_queue_name
+}
+
 resource "aws_lambda_event_source_mapping" "sqs_event_source" {
-  event_source_arn = var.sqs_queue_arn
+  event_source_arn = data.aws_sqs_queue.video_processing_queue.arn
   function_name    = aws_lambda_function.lambda_function.arn
   batch_size       = 5
 }
