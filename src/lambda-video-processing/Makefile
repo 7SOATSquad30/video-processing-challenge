@@ -6,13 +6,10 @@ FFMPEG_S3_KEY=ffmpeg/ffmpeg-release-amd64-static.zip
 LAYER_ZIP=ffmpeg-layer.zip
 LAYER_DIR=ffmpeg-layer
 
-ENV ?= local
-
-# Define the endpoint URL based on the environment
-ifeq ($(ENV), local)
-  AWS_ENDPOINT=--endpoint-url=http://localhost:4566
-else
+ifeq ($(origin AWS_ENDPOINT_URL), undefined)
   AWS_ENDPOINT=
+else
+  AWS_ENDPOINT=--endpoint-url=$(AWS_ENDPOINT_URL)
 endif
 
 .PHONY: build
