@@ -27,7 +27,34 @@ jobs:
       - name: Instalar dependências necessárias
         run: sudo apt-get update && sudo apt-get install -y xz-utils zip
 
-      # Criação do pacote de deployment
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Cache do Terraform
+        uses: actions/cache@v3
+        with:
+          path: ~/.terraform.d
+          key: terraform-${{ runner.os }}-${{ hashFiles('src/infra/**/*.tf') }}
+          restore-keys: terraform-${{ runner.os }}-
+
+      - name: Infra Basica - Inicializar Terraform
+        working-directory: ./src/infra/
+        run: |
+          terraform -chdir='./tfstate' init
+          terraform -chdir='./shared' init
+
+      - name: Infra Basica - Planejar Terraform
+        working-directory: ./src/infra/
+        run: |
+          terraform -chdir='./tfstate' plan -out=plan_tfstate
+          terraform -chdir='./shared' plan -out=plan_shared
+
+      - name: Infra Basica - Aplicar Terraform
+        working-directory: ./src/infra/
+        run: |
+          terraform -chdir='./tfstate' apply -auto-approve plan_tfstate
+          terraform -chdir='./shared' apply -auto-approve plan_shared
+
       - name: Construir pacote de implantação
         run: |
           set -e
@@ -37,52 +64,25 @@ jobs:
             exit 1;
           fi
 
-      # Baixar e enviar ffmpeg para o bucket S3
       - name: Baixar e enviar FFmpeg para o S3
         run: make -C ./src/lambda-video-processing build-ffmpeg-layer
 
-      # Instalar o Terraform
-      - name: Instalar Terraform
-        uses: hashicorp/setup-terraform@v2
-
-      # Cache do Terraform (melhora a performance)
-      - name: Cache do Terraform
-        uses: actions/cache@v3
-        with:
-          path: ~/.terraform.d
-          key: terraform-${{ runner.os }}-${{ hashFiles('src/infra/**/*.tf') }}
-          restore-keys: terraform-${{ runner.os }}-
-
-      # Inicializar Terraform
-      - name: Inicializar Terraform
+      - name: Lambda - Inicializar Terraform
         working-directory: ./src/infra/
-        run: |
-          terraform -chdir='./tfstate' init
-          terraform -chdir='./shared' init
-          terraform -chdir='./lambda-video-processing' init
+        run: terraform -chdir='./lambda-video-processing' init
 
-      # Planejar o Terraform
-      - name: Planejar Terraform
+      - name: Lambda - Planejar Terraform
         working-directory: ./src/infra/
-        run: |
-          terraform -chdir='./tfstate' plan -out=plan_tfstate
-          terraform -chdir='./shared' plan -out=plan_shared
-          terraform -chdir='./lambda-video-processing' plan -out=plan_lambda-video-processing
+        run: terraform -chdir='./lambda-video-processing' plan -out=plan_lambda-video-processing
 
-      # Aplicar Terraform
-      - name: Aplicar Terraform
+      - name: Lambda - Aplicar Terraform
         working-directory: ./src/infra/
-        run: |
-          terraform -chdir='./tfstate' apply -auto-approve plan_tfstate
-          terraform -chdir='./shared' apply -auto-approve plan_shared
-          terraform -chdir='./lambda-video-processing' apply -auto-approve plan_lambda-video-processing
+        run: terraform -chdir='./lambda-video-processing' apply -auto-approve plan_lambda-video-processing
 
-      # Notificar sucesso do deploy
       - name: Notificar sucesso do deploy
         if: success()
         run: echo "Deploy concluído com sucesso para LambdaProcessadorVideos em $AWS_REGION!"
 
-      # Notificar falha do deploy
       - name: Notificar falha do deploy
         if: failure()
         run: echo "Falha no deploy da LambdaProcessadorVideos. Verifique os logs."
