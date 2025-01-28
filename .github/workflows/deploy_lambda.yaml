@@ -37,22 +37,18 @@ jobs:
           key: terraform-${{ runner.os }}-${{ hashFiles('src/infra/**/*.tf') }}
           restore-keys: terraform-${{ runner.os }}-
 
-      - name: Infra Basica - Inicializar Terraform
+      - name: Deploy - Infra basica terraform
         working-directory: ./src/infra/
         run: |
           terraform -chdir='./tfstate' init
-          terraform -chdir='./shared' init
-
-      - name: Infra Basica - Planejar Terraform
-        working-directory: ./src/infra/
-        run: |
           terraform -chdir='./tfstate' plan -out=plan_tfstate
-          terraform -chdir='./shared' plan -out=plan_shared
+          terraform -chdir='./tfstate' apply -auto-approve plan_tfstate
 
-      - name: Infra Basica - Aplicar Terraform
+      - name: Deploy - Infra compartilhada
         working-directory: ./src/infra/
         run: |
-          terraform -chdir='./tfstate' apply -auto-approve plan_tfstate
+          terraform -chdir='./shared' init
+          terraform -chdir='./shared' plan -out=plan_shared
           terraform -chdir='./shared' apply -auto-approve plan_shared
 
       - name: Construir pacote de implantação
@@ -67,17 +63,12 @@ jobs:
       - name: Baixar e enviar FFmpeg para o S3
         run: make -C ./src/lambda-video-processing build-ffmpeg-layer
 
-      - name: Lambda - Inicializar Terraform
+      - name: Deploy - Lambda video-processing
         working-directory: ./src/infra/
-        run: terraform -chdir='./lambda-video-processing' init
-
-      - name: Lambda - Planejar Terraform
-        working-directory: ./src/infra/
-        run: terraform -chdir='./lambda-video-processing' plan -out=plan_lambda-video-processing
-
-      - name: Lambda - Aplicar Terraform
-        working-directory: ./src/infra/
-        run: terraform -chdir='./lambda-video-processing' apply -auto-approve plan_lambda-video-processing
+        run: |
+          terraform -chdir='./lambda-video-processing' init
+          terraform -chdir='./lambda-video-processing' plan -out=plan_lambda-video-processing
+          terraform -chdir='./lambda-video-processing' apply -auto-approve plan_lambda-video-processing
 
       - name: Notificar sucesso do deploy
         if: success()
