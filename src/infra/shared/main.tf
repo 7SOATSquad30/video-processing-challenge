@@ -36,7 +36,7 @@ resource "aws_sqs_queue" "video_processing_queue" {
   delay_seconds               = 0
   max_message_size            = 262144
   message_retention_seconds   = 345600
-  visibility_timeout_seconds  = 30
+  visibility_timeout_seconds  = 900
   fifo_queue                  = false
   content_based_deduplication = false
 }
