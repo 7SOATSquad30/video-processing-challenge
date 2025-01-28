@@ -1,0 +1,93 @@
+name: Deploy Lambda
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Instalar dependências necessárias
+        run: sudo apt-get update && sudo apt-get install -y xz-utils zip
+
+      # Criação do pacote de deployment
+      - name: Construir pacote de implantação
+        run: |
+          set -e
+          make build
+          make -C ./src/lambda-video-processing build
+          if [ ! -f ./src/lambda-video-processing/deployment_package.zip ]; then
+            echo "Arquivo deployment_package.zip não encontrado!";
+            exit 1;
+          fi
+
+      # Baixar e enviar ffmpeg para o bucket S3
+      - name: Baixar e enviar FFmpeg para o S3
+        run: make -C ./src/lambda-video-processing build-ffmpeg-layer
+
+      # Copiar o arquivo de deployment para o diretório onde o Terraform pode acessá-lo
+      - name: Mover arquivo para o diretório do Terraform
+        run: mv ./src/lambda-video-processing/deployment_package.zip infra/deployment_package.zip
+
+      # Instalar o Terraform
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      # Cache do Terraform (melhora a performance)
+      - name: Cache do Terraform
+        uses: actions/cache@v3
+        with:
+          path: ~/.terraform.d
+          key: terraform-${{ runner.os }}-${{ hashFiles('infra/**/*.tf') }}
+          restore-keys: terraform-${{ runner.os }}-
+
+      # Inicializar Terraform
+      - name: Inicializar Terraform
+        working-directory: infra  # Certifique-se de que 'infra' está no local correto
+        run: |
+          terraform -chdir='./src/infra/tfstate' init && \
+          terraform -chdir='./src/infra/shared' init && \
+          terraform -chdir='./src/infra/lambda-video-processing' init
+
+      # Planejar o Terraform
+      - name: Planejar Terraform
+        working-directory: infra
+        run: |
+          terraform -chdir='./src/infra/tfstate' plan -out=plan_tfstate && \
+          terraform -chdir='./src/infra/shared' plan -out=plan_shared && \
+          terraform -chdir='./src/infra/lambda-video-processing' plan -out=plan_lambda-video-processing
+
+      # Aplicar Terraform
+      - name: Aplicar Terraform
+        working-directory: infra
+        run: |
+          terraform apply -auto-approve plan_tfstate && \
+          terraform apply -auto-approve plan_shared && \
+          terraform apply -auto-approve plan_lambda-video-processing
+
+      # Notificar sucesso do deploy
+      - name: Notificar sucesso do deploy
+        if: success()
+        run: echo "Deploy concluído com sucesso para LambdaProcessadorVideos em $AWS_REGION!"
+
+      # Notificar falha do deploy
+      - name: Notificar falha do deploy
+        if: failure()
+        run: echo "Falha no deploy da LambdaProcessadorVideos. Verifique os logs."
