@@ -31,7 +31,6 @@ jobs:
       - name: Construir pacote de implantação
         run: |
           set -e
-          make build
           make -C ./src/lambda-video-processing build
           if [ ! -f ./src/lambda-video-processing/deployment_package.zip ]; then
             echo "Arquivo deployment_package.zip não encontrado!";
