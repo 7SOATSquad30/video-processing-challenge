@@ -14,7 +14,7 @@ provider "aws" {
 
 # Connect the S3 module
 module "s3" {
-  source             = "./modules/s3"
+  source             = "./s3"
   output_s3_bucket   = var.output_s3_bucket
   bucket_name_ffmpeg = var.bucket_name_ffmpeg
 }

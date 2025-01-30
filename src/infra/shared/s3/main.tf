@@ -1,4 +1,7 @@
-# Create a S3 bucket
-resource "aws_s3_bucket" "video_processing_files" {
-  bucket = var.s3_bucket_name
+resource "aws_s3_bucket" "ffmpeg_layer" {
+  bucket = var.bucket_name_ffmpeg
+}
+
+resource "aws_s3_bucket" "videos_s3_bucket" {
+  bucket = var.output_s3_bucket
 }
