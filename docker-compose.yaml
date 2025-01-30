@@ -1,22 +1,10 @@
 version: '3.8'
 services:
-  database:
-    image: postgres:15
-    container_name: database
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: databse
-    ports:
-      - "5432:5432"
-    volumes:
-      - .postgres_data:/var/lib/postgresql/data
-
   localstack:
     image: localstack/localstack:latest
     container_name: localstack
     environment:
-      SERVICES: "dynamodb,iam,lambda,s3,ses,sns,sqs,ssm,sts"
+      SERVICES: "dynamodb,iam,lambda,logs,s3,ses,sns,sqs,ssm,sts"
       EDGE_PORT: 4566
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
@@ -26,6 +14,28 @@ services:
     volumes:
       - ./.localstack-data:/var/lib/localstack
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - localstack-network
 
-volumes:
-  postgres_data:
+  builder:
+    container_name: builder
+    build:
+      context: .
+      dockerfile: Dockerfile.builder
+    volumes:
+      - .:/workspace
+    environment:
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - LOCALSTACK_HOST=localstack:4566
+      - S3_HOSTNAME=localstack
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    networks:
+      - localstack-network
+
+networks:
+  localstack-network:
+    driver: bridge
