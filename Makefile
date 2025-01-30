@@ -1,8 +1,8 @@
 infrastructure/up:
 	docker-compose up -d
-	AWS_ENDPOINT_URL="http://localhost:4566"
-	AWS_ACCESS_KEY_ID=test
-	AWS_SECRET_ACCESS_KEY=test
+	export AWS_ENDPOINT_URL="http://localhost:4566" \
+	export AWS_ACCESS_KEY_ID=test \
+	export AWS_SECRET_ACCESS_KEY=test
 
 	tflocal -chdir="./src/infra/tfstate" init -backend-config="force_path_style=true"
 	tflocal -chdir="./src/infra/tfstate" apply -auto-approve
@@ -20,8 +20,15 @@ deploy/dev:
 	tflocal -chdir="./src/infra/lambda-video-processing" init -backend-config="force_path_style=true"
 	tflocal -chdir="./src/infra/lambda-video-processing" apply -auto-approve
 
+	tflocal -chdir="./src/infra/lambda-upload-video" init -backend-config="force_path_style=true"
+	tflocal -chdir="./src/infra/lambda-upload-video" apply -auto-approve
+
 infrastructure/logs:
 	docker-compose logs -f
 
 application/logs:
 	aws --endpoint-url=http://localhost:4566 logs tail /aws/lambda/LambdaProcessadorVideos --follow
+
+teste/lambda-upload-video:
+	tflocal -chdir="./src/infra/lambda-upload-video" init -backend-config="force_path_style=true"
+	tflocal -chdir="./src/infra/lambda-upload-video" apply -auto-approve

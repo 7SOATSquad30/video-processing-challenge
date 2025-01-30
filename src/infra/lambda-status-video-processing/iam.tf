@@ -1,5 +1,5 @@
-resource "aws_iam_role" "upload_lambda" {
-  name = "upload_lambda_role"
+resource "aws_iam_role" "lambda_status" {
+  name = "lambda_status_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
@@ -13,7 +13,7 @@ resource "aws_iam_role" "upload_lambda" {
   })
 }
 
-data "aws_iam_policy_document" "s3_lambda" {
+data "aws_iam_policy_document" "lambda_status" {
   statement {
     effect    = "Allow"
     resources = ["arn:aws:logs:*:*"]
@@ -26,20 +26,14 @@ data "aws_iam_policy_document" "s3_lambda" {
     resources = ["arn:aws:logs:*:*:log-group:/aws/lambda/*:*"]
     actions   = ["logs:CreateLogStream", "logs:PutLogEvents"]
   }
-
-  statement {
-    effect    = "Allow"
-    resources = ["arn:aws:s3:::${aws_s3_bucket.lambda.id}/*"]
-    actions   = ["s3:GetObject", "s3:PutObject", "s3:PutBucketAcl"]
-  }
 }
 
-resource "aws_iam_policy" "upload_lambda" {
+resource "aws_iam_policy" "lambda_status" {
   name   = "${local.component_name}-policy"
-  policy = data.aws_iam_policy_document.s3_lambda.json
+  policy = data.aws_iam_policy_document.lambda_status.json
 }
 
-resource "aws_iam_role_policy_attachment" "upload_lambda_attach" {
-  policy_arn = aws_iam_policy.upload_lambda.arn
-  role       = aws_iam_role.upload_lambda.name
+resource "aws_iam_role_policy_attachment" "lambda_status_attach" {
+  policy_arn = aws_iam_policy.lambda_status.arn
+  role       = aws_iam_role.lambda_status.name
 }

@@ -1,11 +1,11 @@
 {
-  "name": "lambda-upload-video",
+  "name": "lambda-status-process",
   "version": "1.0.0",
   "description": "",
   "main": "lambda.js",
   "scripts": {
     "dev": "tsnd index.ts",
-    "build": "rm -rf dist/* && tsc && cp -R node_modules dist/",
+    "build": "tsc && cp -R node_modules dist/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,13 +13,8 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.1692.0",
-    "express": "^4.21.2",
-    "multer": "^1.4.5-lts.1",
-    "serverless-http": "^3.2.0"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0",
-    "@types/multer": "^1.4.12",
     "@types/node": "^22.12.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.7.3"
