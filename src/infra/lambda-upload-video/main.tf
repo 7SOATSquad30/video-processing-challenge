@@ -9,7 +9,7 @@ resource "aws_iam_role_policy_attachment" "lambda_policy" {
 //   acl    = "private"
 // }
 
-resource "aws_sqs_queue" "videos_to_process" {
+resource "aws_sqs_queue" "video_processing_queue" {
   name = var.sqs_queue_name
 }
 

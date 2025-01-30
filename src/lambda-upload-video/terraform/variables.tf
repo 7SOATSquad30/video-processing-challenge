@@ -15,5 +15,5 @@ variable "s3_bucket_name" {
 }
 
 variable "sqs_queue_name" {
-  default = "videos-to-process"
+  default = "video_processing_queue"
 }

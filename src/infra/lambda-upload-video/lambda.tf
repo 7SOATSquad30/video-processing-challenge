@@ -12,4 +12,11 @@ resource "aws_lambda_function" "upload_lambda" {
   runtime          = "nodejs16.x"
   source_code_hash = data.archive_file.upload_lambda.output_base64sha256
   architectures    = ["arm64"]
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE_NAME = var.dynamodb_table_name
+      INPUT_S3_BUCKET    = var.input_s3_bucket
+    }
+  }
 }

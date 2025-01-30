@@ -9,11 +9,6 @@
 Windows:
 ```
 docker-compose up -d
-tflocal init
-tflocal plan
-tflocal apply
-```
-
 export AWS_ENDPOINT_URL="http://localhost:4566"
 export AWS_ACCESS_KEY_ID=test
 export AWS_SECRET_ACCESS_KEY=test
@@ -39,14 +34,3 @@ make infrastructure/up
 make deploy/dev
 make logs
 ```
-
-## - Lambda API [Producer]
-  - POST /users/{}/videos/process
-    - Salva vídeo no S3
-    - Enfileira processamento do video
-  - GET /users/{}/videos
-    - Consulta status dos processamentos
-
-## S3
-
-bucket: fiap-postech-video-processing

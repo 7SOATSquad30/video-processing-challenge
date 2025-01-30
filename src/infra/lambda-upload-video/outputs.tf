@@ -9,9 +9,9 @@ output "s3_bucket_arn" {
   value = aws_s3_bucket.lambda.arn
 }
 
-output "sqs_queue_url" {
-  value = aws_sqs_queue.videos_to_process.id
-}
+/*output "sqs_queue_url" {
+  value = aws_sqs_queue.video_processing_queue.id
+}*/
 
 output "lambda" {
   value = {
