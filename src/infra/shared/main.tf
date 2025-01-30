@@ -19,15 +19,11 @@ module "s3" {
   bucket_name_ffmpeg = var.bucket_name_ffmpeg
 }
 
-resource "aws_dynamodb_table" "videos_dynamo_table" {
-  name         = var.dynamodb_table_name
-  hash_key     = "object_key"
-  billing_mode = "PAY_PER_REQUEST"
-
-  attribute {
-    name = "object_key"
-    type = "S"
-  }
+# Connect the DynamoDB module
+module "dynamodb" {
+  source                 = "./dynamodb"
+  dynamodb_table_name    = var.dynamodb_table_name
+  dynamodb_partition_key = var.dynamodb_partition_key
 }
 
 resource "aws_sqs_queue" "video_processing_queue" {
