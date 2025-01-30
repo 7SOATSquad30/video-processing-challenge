@@ -1,8 +1,8 @@
 {
-  "name": "lambda-status-process",
+  "name": "lambda-status-video-processing",
   "version": "1.0.0",
   "description": "",
-  "main": "lambda.js",
+  "main": "index.js",
   "scripts": {
     "dev": "tsnd index.ts",
     "build": "tsc && cp -R node_modules dist/",
@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.1692.0",
+    "aws-sdk": "^2.1692.0"
   },
   "devDependencies": {
     "@types/node": "^22.12.0",

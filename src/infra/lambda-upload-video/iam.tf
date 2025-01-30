@@ -32,6 +32,23 @@ data "aws_iam_policy_document" "s3_lambda" {
     resources = ["arn:aws:s3:::${aws_s3_bucket.lambda.id}/*"]
     actions   = ["s3:GetObject", "s3:PutObject", "s3:PutBucketAcl"]
   }
+
+  statement {
+    effect    = "Allow"
+    resources = ["aarn:aws:sqs:us-east-1:123456789012:${var.sqs_queue_name}"]
+    actions   = ["sqs:SendMessage"]
+  }
+
+  statement = {
+    effect   = "Allow"
+    resource = "*"
+    actions = [
+      "dynamodb:Query",
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+  }
 }
 
 resource "aws_iam_policy" "upload_lambda" {

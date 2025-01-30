@@ -20,7 +20,7 @@ resource "aws_lambda_function" "upload_lambda" {
   environment {
     variables = {
       DYNAMODB_TABLE_NAME = var.dynamodb_table_name
-      INPUT_S3_BUCKET    = var.input_s3_bucket
+      INPUT_S3_BUCKET     = var.input_s3_bucket
     }
   }
 }
