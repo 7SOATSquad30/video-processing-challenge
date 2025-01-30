@@ -26,12 +26,9 @@ module "dynamodb" {
   dynamodb_partition_key = var.dynamodb_partition_key
 }
 
-resource "aws_sqs_queue" "video_processing_queue" {
-  name                        = var.sqs_queue_name
-  delay_seconds               = 0
-  max_message_size            = 262144
-  message_retention_seconds   = 345600
-  visibility_timeout_seconds  = 900
-  fifo_queue                  = false
-  content_based_deduplication = false
+# Connect the SQS module
+module "sqs" {
+  source         = "./sqs"
+  sqs_queue_name = var.sqs_queue_name
+  sqs_dlq_name   = var.sqs_dlq_name
 }
