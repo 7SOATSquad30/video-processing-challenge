@@ -16,8 +16,8 @@ variable "dynamodb_table_name" {
   default     = "table_videos"
 }
 
-variable "output_s3_bucket" {
-  description = "Nome do bucket S3 para saída"
+variable "s3_bucket" {
+  description = "Nome do bucket S3 para armazenamento de vídeos"
   type        = string
   default     = "teste-arquivos-videos"
 }
