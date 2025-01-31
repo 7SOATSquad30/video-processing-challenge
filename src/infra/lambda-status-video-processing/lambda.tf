@@ -12,6 +12,8 @@ resource "aws_lambda_function" "lambda_status" {
   runtime          = "nodejs16.x"
   source_code_hash = data.archive_file.lambda_status.output_base64sha256
   architectures    = ["arm64"]
+  timeout          = 900
+  memory_size      = 512
 
   environment {
     variables = {
