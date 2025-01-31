@@ -14,3 +14,28 @@ services:
     volumes:
       - ./.localstack-data:/var/lib/localstack
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - localstack-network
+
+  builder:
+    container_name: builder
+    build:
+      context: .
+      dockerfile: Dockerfile.builder
+    volumes:
+      - .:/workspace
+    environment:
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - LOCALSTACK_HOST=localstack:4566
+      - S3_HOSTNAME=localstack
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    networks:
+      - localstack-network
+
+networks:
+  localstack-network:
+    driver: bridge
