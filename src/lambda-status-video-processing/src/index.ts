@@ -17,23 +17,49 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient(isProd ? undefined : {
 exports.handler = async (event: any) => {
   console.log('event', event);
 
-  const userId = event.pathParameters?.userId;
-
-  const params = {
-    TableName: tableName,
-    KeyConditionExpression: '#userId = :userId',
-    ExpressionAttributeNames: {
-      '#userId': 'userId'
-    },
-    ExpressionAttributeValues: {
-      ':userId': userId
-    }
-  };
-  console.log('params', params);
-
   try {
+
+    const userId = event?.pathParameters?.userId || event?.userId;
+
+    console.log('userId', userId);
+
+    if (!userId) {
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ error: 'Field usedId is required.' })
+      };
+    }
+
+    const params = {
+      TableName: tableName,
+      IndexName: "TimestampIndex",
+      ScanIndexForward: true, // ascendent order
+      KeyConditionExpression: "#userId = :userId",
+      ExpressionAttributeNames: {
+        "#userId": "userId"
+      },
+      ExpressionAttributeValues: {
+        ":userId": "" + userId
+      }
+    };
+    
+    console.log('params', params);
+
     const data = await dynamoDb.query(params).promise();
     console.log('data', data);
+
+    if (!data.Items || data.Items.length === 0) {
+      return {
+        statusCode: 404,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ error: 'User or videos not found.' })
+      };
+    }
 
     return {
       statusCode: 200,
