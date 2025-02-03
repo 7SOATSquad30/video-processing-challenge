@@ -30,3 +30,5 @@ application/logs:
 lambda-status/logs:
 	aws --endpoint-url=http://localhost:4566 logs tail /aws/lambda/lambda-status-video-processing --follow
 	
+clear:
+	rm -rf .localstack-data/*
