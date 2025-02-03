@@ -1,7 +1,15 @@
 const AWS = require('aws-sdk');
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 const tableName = 'table_videos'; // TODO process.env.tableName;
+const isProd = process.env.NODE_ENV === 'production';
+const localstackEndpoint = process.env.LOCALSTACK_HOSTNAME;
+
+const dynamoDb = new AWS.DynamoDB.DocumentClient(isProd ? undefined : {
+  region: "us-east-1",
+  endpoint: `http://${localstackEndpoint}:4566`, // LocalStack
+  accessKeyId: "test",
+  secretAccessKey: "test",
+});
 
 export async function save(event: any) {
   const item = JSON.parse(event.body);
@@ -13,14 +21,16 @@ export async function save(event: any) {
 
   try {
     await dynamoDb.put(params).promise();
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ message: 'Item inserted successfully' })
-    };
+    console.log('Item inserted successfully into DynamoDB.');
+    // return {
+    //   statusCode: 200,
+    //   body: JSON.stringify({ message: 'Item inserted successfully into DynamoDB.' })
+    // };
   } catch (error: any) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message })
-    };
+    console.error('Error inserting item into DynamoDB.', error);
+    // return {
+    //   statusCode: 500,
+    //   body: JSON.stringify({ error: error.message })
+    // };
   }
 };

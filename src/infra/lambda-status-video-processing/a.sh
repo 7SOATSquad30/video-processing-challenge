@@ -1,3 +1,3 @@
 clear
-echo "Deploying lambda-status-video-processing"
+echo "Apply lambda-status-video-processing"
 tflocal apply -auto-approve

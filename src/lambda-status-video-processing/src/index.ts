@@ -18,11 +18,7 @@ exports.handler = async (event: any) => {
   console.log('event', event);
 
   try {
-
     const userId = event?.pathParameters?.userId || event?.userId;
-
-    console.log('userId', userId);
-
     if (!userId) {
       return {
         statusCode: 400,

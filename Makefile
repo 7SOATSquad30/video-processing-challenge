@@ -26,4 +26,7 @@ infrastructure/logs:
 
 application/logs:
 	aws --endpoint-url=http://localhost:4566 logs tail /aws/lambda/LambdaProcessadorVideos --follow
+
+lambda-status/logs:
+	aws --endpoint-url=http://localhost:4566 logs tail /aws/lambda/lambda-status-video-processing --follow
 	

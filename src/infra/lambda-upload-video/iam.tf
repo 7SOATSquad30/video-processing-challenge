@@ -13,7 +13,7 @@ resource "aws_iam_role" "upload_lambda" {
   })
 }
 
-data "aws_iam_policy_document" "s3_lambda" {
+data "aws_iam_policy_document" "upload_lambda" {
   statement {
     effect    = "Allow"
     resources = ["arn:aws:logs:*:*"]
@@ -29,31 +29,29 @@ data "aws_iam_policy_document" "s3_lambda" {
 
   statement {
     effect    = "Allow"
-    resources = ["arn:aws:s3:::${aws_s3_bucket.lambda.id}/*"]
+    resources = ["*"]
     actions   = ["s3:GetObject", "s3:PutObject", "s3:PutBucketAcl"]
   }
 
   statement {
     effect    = "Allow"
-    resources = ["aarn:aws:sqs:us-east-1:123456789012:${var.sqs_queue_name}"]
+    resources = ["arn:aws:sqs:us-east-1:123456789012:${var.sqs_queue_name}"]
     actions   = ["sqs:SendMessage"]
   }
 
-  statement = {
+  statement {
+    sid       = "AllowDynamoDBQuery"
     effect   = "Allow"
-    resource = "*"
+    resources = ["*"]
     actions = [
-      "dynamodb:Query",
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents"
+      "dynamodb:InsertItem"
     ]
   }
 }
 
 resource "aws_iam_policy" "upload_lambda" {
   name   = "${local.component_name}-policy"
-  policy = data.aws_iam_policy_document.s3_lambda.json
+  policy = data.aws_iam_policy_document.upload_lambda.json
 }
 
 resource "aws_iam_role_policy_attachment" "upload_lambda_attach" {

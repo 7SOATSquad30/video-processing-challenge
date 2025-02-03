@@ -1,15 +1,15 @@
-output "bucket" {
+/*output "bucket" {
   value = {
-    arn  = aws_s3_bucket.lambda.arn
-    name = aws_s3_bucket.lambda.id
+    arn  = aws_s3_bucket.upload_lambda.arn
+    name = aws_s3_bucket.upload_lambda.id
   }
 }
 
 output "s3_bucket_arn" {
-  value = aws_s3_bucket.lambda.arn
+  value = aws_s3_bucket.upload_lambda.arn
 }
 
-/*output "sqs_queue_url" {
+output "sqs_queue_url" {
   value = aws_sqs_queue.video_processing_queue.id
 }*/
 

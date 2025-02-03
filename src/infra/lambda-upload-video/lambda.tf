@@ -9,7 +9,7 @@ resource "aws_lambda_function" "upload_lambda" {
   function_name    = local.component_name
   role             = aws_iam_role.upload_lambda.arn
   handler          = "index.handler"
-  runtime          = "nodejs16.x"
+  runtime          = "nodejs20.x"
   source_code_hash = data.archive_file.upload_lambda.output_base64sha256
   architectures    = ["arm64"]
 
@@ -28,7 +28,7 @@ resource "aws_lambda_function" "upload_lambda" {
 /*resource "aws_lambda_layer_version" "express_layer" {
   layer_name          = "express-layer"
   description         = "Nodejs Express Layer"
-  compatible_runtimes = ["nodejs16.x"]
+  compatible_runtimes = ["nodejs20.x"]
 
   #s3_bucket = var.bucket_name_ffmpeg
   #s3_key    = var.object_key_ffmpeg

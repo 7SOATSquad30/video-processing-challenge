@@ -19,32 +19,74 @@ const bucket_name = "fiap-challenge-terraform-state"; // TODO process.env.bucket
 const inputDirectory = 'input';
 
 app.post('/users/:userId/videos/process', upload.single('file'), async (req: any, res: any) => {
-  const timestamp = new Date().getTime();
-  const userId = req.params.userId;
-  const file = req.file;
-  const videoName = `${userId}_${timestamp}_${file.originalname}`;
-  const params = {
-    Bucket: bucket_name,
-    Key: `${inputDirectory}/${videoName}`,
-    Body: fs.createReadStream(file.path),
-  };
-  s3.upload(params, (err: any, data: any) => {
-    if (err) {
-      return res.status(500).send(err);
+  console.log('req', req);
+  
+  try {
+    const timestamp = new Date().getTime();
+    const userId = req.params.userId;
+
+    if (!userId) {
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ error: 'Field usedId is required.' })
+      };
     }
-    res.status(200).send(data);
-  });
 
-  await persist({userId: 99, videoName: file.originalname});
+    if (!req.file) {
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ error: 'No video file in the request.' })
+      };
+    }
+    
+    const file = req.file;
+    const videoName = `${userId}_${timestamp}_${file.originalname}`;
+    const params = {
+      Bucket: bucket_name,
+      Key: `${inputDirectory}/${videoName}`,
+      Body: fs.createReadStream(file.path),
+    };
+    
+    console.log('#################################################');
+    console.log('Uploading video to S3...');
+    await s3.upload(params, (err: any, data: any) => {
+      if (err) {
+        return res.status(500).send(err);
+      }
+    });
 
-  await addToQueue({userId: 99, videoName: file.originalname});
+    console.log('#################################################');
+    console.log('Saving data in DynamoDB...');
+    await persist({userId: 99, videoName: file.originalname, timestamp});
 
-  const msg = req.file ? `File "${req.file.filename}" was uploaded.` : 'No file uploaded.';
-  console.log(msg);
-  res.status(200).json({message: msg});
+    console.log('#################################################');
+    console.log('Adding message in SQS...');
+    await addToQueue({userId: 99, videoName: file.originalname});
+
+    const msg = `File "${req.file.filename}" was uploaded.`;
+
+    console.log('#################################################');
+    console.log('Finished!');
+    console.log(msg);
+
+    return res.status(200).json({message: msg});
+  } catch (error: any) {
+    console.error('Error', error);
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ error: error.message })
+    };
+  }
 });
-
-// app.use('files', express.static('uploads'));
 
 app.use((err: any, req: any, res: any, next: any) => {
   if (err instanceof multer.MulterError) {
@@ -55,18 +97,22 @@ app.use((err: any, req: any, res: any, next: any) => {
 });
 
 async function persist(params: any) {
-  const { userId, videoName } = params;
-  const timestamp = new Date().getTime();
-  const nameWithNoExtension = videoName.split('.')[0];
-  await save({
-    body: {
-      id: `${userId}_${timestamp}_${nameWithNoExtension}`,
-      userId,
-      videoName: `${userId}_${timestamp}_${videoName}`,
-      creationDate: new Date(timestamp).toISOString(),
-      status: 'A_PROCESSAR'
-    }
-  });
+  try {
+    const { userId, videoName, timestamp } = params;
+    const nameWithNoExtension = videoName.split('.')[0];
+    await save({
+      body: {
+        object_key: `${userId}_${timestamp}_${nameWithNoExtension}`,
+        userId,
+        videoName: `${userId}_${timestamp}_${videoName}`,
+        timestamp: new Date(timestamp).toISOString(),
+        status: 'A_PROCESSAR'
+      }
+    });
+  } catch (error: any) {
+    console.error('Error', error);
+    return error;
+  }
 }
 
 async function addToQueue(params: any) {
@@ -75,7 +121,7 @@ async function addToQueue(params: any) {
   const nameWithNoExtension = videoName.split('.')[0];
   await addMessage({
     body: {
-      id: `${userId}_${timestamp}_${nameWithNoExtension}`,
+      object_key: `${userId}_${timestamp}_${nameWithNoExtension}`,
       userId,
       videoName: `${userId}_${timestamp}_${videoName}`,
     }

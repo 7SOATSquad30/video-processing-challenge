@@ -1,10 +1,10 @@
 # Upload Lambda
 
 ## - Lambda API [Producer]
-  - POST /users/{}/videos/process
+  - POST /users/{userId}/videos/process
     - Salva vídeo no S3
     - Enfileira processamento do video
-  - GET /users/{}/videos
+  - GET /users/{userId}/videos
     - Consulta status dos processamentos
 
 ## S3
