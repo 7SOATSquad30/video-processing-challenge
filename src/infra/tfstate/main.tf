@@ -8,6 +8,6 @@ resource "aws_s3_bucket" "tfstate_bucket" {
 }
 
 provider "aws" {
-  region = var.aws_region
+  region            = var.aws_region
   s3_use_path_style = var.s3_use_path_style
 }

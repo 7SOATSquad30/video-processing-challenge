@@ -16,8 +16,8 @@ variable "dynamodb_table_name" {
   default     = "table_videos"
 }
 
-variable "output_s3_bucket" {
-  description = "Nome do bucket S3 para saída"
+variable "s3_bucket" {
+  description = "Nome do bucket S3 para armazenamento de vídeos"
   type        = string
   default     = "teste-arquivos-videos"
 }
@@ -30,7 +30,7 @@ variable "sqs_queue_name" {
 variable "ses_source_email" {
   description = "Email de origem para notificação"
   type        = string
-  default     = "otavio.sto@gmail.com"
+  default     = "no-reply@fiap.com.br"
 }
 
 variable "bucket_name_ffmpeg" {

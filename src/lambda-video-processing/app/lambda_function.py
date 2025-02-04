@@ -19,24 +19,24 @@ def lambda_handler(event, context):
     """
     try:
         table_name = get_env_variable('DYNAMODB_TABLE_NAME')
-        output_bucket_name = get_env_variable('OUTPUT_S3_BUCKET')
+        bucket_name  = get_env_variable('S3_BUCKET')
         processed_files = []
-
+        source_email = get_env_variable('SOURCE_EMAIL')
 
         for record in event['Records']:
             message_body = json.loads(record['body'])
-            bucket_name = message_body['bucket_name']
+            video_name = message_body['videoName']
             object_key = message_body['object_key']
             client_email = message_body['client_email']
-            download_path = os.path.join('/tmp', os.path.basename(object_key))
+            download_path = os.path.join('/tmp', os.path.basename(video_name))
             output_frames_dir = os.path.join('/tmp', 'frames')
-            zip_file_path = os.path.join('/tmp', 'frames.zip')
+            zip_file_path = os.path.join('/tmp', f'{video_name}.zip')
 
-            # Atualiza status para "Em processamento"
-            update_status_in_dynamodb(table_name, object_key, 'Em processamento')
+            # Atualiza status para "PROCESSANDO"
+            update_status_in_dynamodb(table_name, object_key, 'PROCESSANDO')
 
-            logger.info(f"Iniciando download do arquivo: {object_key} do bucket: {bucket_name}")
-            download_file_from_s3(bucket_name, object_key, download_path)
+            logger.info(f"Iniciando download do arquivo: {video_name} do bucket: {bucket_name}")
+            download_file_from_s3(bucket_name, video_name, download_path)
 
             # Extrai frames do vídeo usando FFmpeg
             extract_frames_with_ffmpeg(download_path, output_frames_dir)
@@ -45,31 +45,36 @@ def lambda_handler(event, context):
             create_zip_from_folder(output_frames_dir, zip_file_path)
 
             # Faz upload do arquivo zip para o bucket S3 de saída
-            upload_key = f"processed/{os.path.basename(zip_file_path)}"
-            upload_file_to_s3(zip_file_path, output_bucket_name, upload_key)
-            logger.info(f"Arquivo ZIP carregado com sucesso para: {output_bucket_name}/{upload_key}")
+            upload_key = f"output/{os.path.basename(zip_file_path)}"
+            upload_file_to_s3(zip_file_path, bucket_name, upload_key)
+            logger.info(f"Arquivo ZIP carregado com sucesso para: {bucket_name}/{upload_key}")
 
-            # Atualiza status para "Processado"
-            update_status_in_dynamodb(table_name, object_key, 'Processado')
+            # Atualiza status para "SUCESSO"
+            update_status_in_dynamodb(table_name, object_key, 'SUCESSO')
             processed_files.append(upload_key)
-
-        return {
-            'statusCode': 200,
-            'body': json.dumps({'message': 'Processamento concluido', 'files': processed_files})
-        }
+        
+        if processed_files:
+            send_email_notification(client_email, f"Processamento concluido: {processed_files}")
+            return {
+                'statusCode': 200,
+                'body': json.dumps({'message': 'Processamento concluido', 'files': processed_files})
+            }
     
     except KeyError as e:
         error_message = f"Erro: Chave ausente no evento - {str(e)}"
+        update_status_in_dynamodb(table_name, object_key, 'ERRO')
         logger.error(error_message)
-        send_email_notification(client_email, error_message)
+        send_email_notification(source_email, client_email, error_message)
     except json.JSONDecodeError as e:
         error_message = f"Erro ao decodificar JSON - {str(e)}"
+        update_status_in_dynamodb(table_name, object_key, 'ERRO')
         logger.error(error_message)
-        send_email_notification(client_email, error_message)
+        send_email_notification(source_email, client_email, error_message)
     except Exception as e:
         error_message = f"Erro inesperado: {str(e)}"
+        update_status_in_dynamodb(table_name, object_key, 'ERRO')
         logger.error(error_message)
-        send_email_notification(client_email, error_message)
+        send_email_notification(source_email, client_email, error_message)
 
     return {
         'statusCode': 500,
