@@ -10,7 +10,7 @@ const sqs = new AWS.SQS(isProd ? undefined : {
   secretAccessKey: "test",
 });
 
-const queueUrl = 'sqs-processamento-video'; // TODO process.env.queueUrl;
+const queueUrl = isProd ? process.env.queueUrl : `http://${localstackEndpoint}:4566/000000000000/sqs-processamento-video`;
 
 export async function sqsSendMessage(params: any) {
   try {

@@ -19,13 +19,13 @@ export async function s3Upload(params: any) {
   params.Bucket = BUCKET_NAME;
   params.Key = `${INPUT_DIRECTORY}/${params.videoName}`;
   params.Body = params.body;
+  params.ContentType = params.contentType;
   
   console.log('#################################################');
   console.log('Uploading video to S3...');
   await s3.upload(params, (err: any, data: any) => {
     if (err) {
       console.error('Error uploading video to S3.', err);
-      // return res.status(500).send(err);
       return err;
     }
   });
