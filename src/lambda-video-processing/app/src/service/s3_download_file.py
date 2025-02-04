@@ -1,5 +1,5 @@
 import boto3
-from app.src.config.config import logger
+from src.config.config import logger
 
 def download_file_from_s3(bucket_name: str, video_name: str, download_path: str):
     """

@@ -30,7 +30,7 @@ variable "sqs_queue_name" {
 variable "ses_source_email" {
   description = "Email de origem para notificação"
   type        = string
-  default     = "otavio.sto@gmail.com"
+  default     = "no-reply@fiap.com.br"
 }
 
 variable "bucket_name_ffmpeg" {
