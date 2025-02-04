@@ -13,7 +13,8 @@ RUN apt-get update \
     make \
     zip \
     tar \
-    software-properties-common
+    software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python
@@ -29,13 +30,9 @@ RUN echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
     https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
     tee /etc/apt/sources.list.d/hashicorp.list
 
-RUN apt-get update && apt-get install terraform -y
-
-RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
-    apt-get install -y nodejs
+RUN apt-get update && apt-get install terraform -y \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install terraform-local
-
-RUN rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT ["/bin/bash"]

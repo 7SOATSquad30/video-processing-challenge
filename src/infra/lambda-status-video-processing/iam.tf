@@ -26,10 +26,10 @@ data "aws_iam_policy_document" "lambda_status" {
     resources = ["arn:aws:logs:*:*:log-group:/aws/lambda/*:*"]
     actions   = ["logs:CreateLogStream", "logs:PutLogEvents"]
   }
-  
+
   statement {
     sid       = "AllowDynamoDBQuery"
-    effect   = "Allow"
+    effect    = "Allow"
     resources = ["*"]
     actions = [
       "dynamodb:GetItem",
