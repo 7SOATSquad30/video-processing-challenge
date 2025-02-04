@@ -1,42 +1,50 @@
 terraform {
   backend "s3" {
-    bucket         = "fiap-challenge-terraform-state"
-    key            = "video-processing-challenge/shared.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
+    bucket  = "fiap-challenge-terraform-state"
+    key     = "video-processing-challenge/shared.tfstate"
+    region  = "us-east-1"
+    encrypt = true
   }
 }
 
 provider "aws" {
-  region = var.aws_region
+  region            = var.aws_region
   s3_use_path_style = var.s3_use_path_style
 }
 
-resource "aws_s3_bucket" "ffmpeg_layer" {
-  bucket = var.bucket_name_ffmpeg
+# Connect the S3 module
+module "s3" {
+  source             = "./s3"
+  output_s3_bucket   = var.output_s3_bucket
+  bucket_name_ffmpeg = var.bucket_name_ffmpeg
 }
 
-resource "aws_s3_bucket" "videos_s3_bucket" {
-  bucket = var.output_s3_bucket
+# Connect the DynamoDB module
+module "dynamodb" {
+  source                 = "./dynamodb"
+  dynamodb_table_name    = var.dynamodb_table_name
+  dynamodb_partition_key = var.dynamodb_partition_key
 }
 
-resource "aws_dynamodb_table" "videos_dynamo_table" {
-  name           = var.dynamodb_table_name
-  hash_key       = "object_key"
-  billing_mode   = "PAY_PER_REQUEST"
-
-  attribute {
-    name = "object_key"
-    type = "S"
-  }
+# Connect the SQS module
+module "sqs" {
+  source         = "./sqs"
+  sqs_queue_name = var.sqs_queue_name
+  sqs_dlq_name   = var.sqs_dlq_name
 }
 
-resource "aws_sqs_queue" "video_processing_queue" {
-  name                        = var.sqs_queue_name
-  delay_seconds               = 0
-  max_message_size            = 262144
-  message_retention_seconds   = 345600
-  visibility_timeout_seconds  = 900
-  fifo_queue                  = false
-  content_based_deduplication = false
+# Connect the SNS module
+module "sns" {
+  source         = "./sns"
+  sns_topic_name = var.sns_topic_name
+}
+
+# Connect the SES module
+module "ses" {
+  source                   = "./ses"
+  ses_email_address        = var.ses_email_address
+  ses_domain_identity_name = var.ses_domain_identity_name
+  ses_identity_policy_name = var.ses_identity_policy_name
+  ses_smtp_user_name       = var.ses_smtp_user_name
+  ses_smtp_policy_name     = var.ses_smtp_policy_name
 }

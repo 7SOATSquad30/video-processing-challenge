@@ -48,7 +48,9 @@ jobs:
         run: |
           terraform -chdir='./shared' init
           terraform -chdir='./shared' plan -out=plan_shared
-          terraform -chdir='./shared' apply -auto-approve plan_shared
+          terraform -chdir='./shared' apply -auto-approve plan_shared \
+            -var "ses_email_address=${{ secrets.SES_EMAIL_ADDRESS }}" \
+            -var "ses_domain_identity_name=${{ secrets.SES_DOMAIN_IDENTITY_NAME }}"
 
       - name: Construir pacote de implantação
         run: |
