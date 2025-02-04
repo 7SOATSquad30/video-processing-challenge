@@ -1,3 +1,3 @@
 
 build:
-	npm run build
+	npm ci --save-dev && npm run build

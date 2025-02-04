@@ -33,3 +33,5 @@ lambda-status/logs:
 lambda-upload/logs:
 	aws --endpoint-url=http://localhost:4566 logs tail /aws/lambda/lambda-upload-video --follow
 	
+clear:
+	rm -rf .localstack-data/*

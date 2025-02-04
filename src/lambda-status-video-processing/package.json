@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsnd index.ts",
-    "build": "tsc && zip -r -j -4 build.zip dist",
+    "build": "tsc && zip -r -4 build.zip dist",
     "upload": "aws lambda update-function-code --endpoint-url http://localhost:4566 --function-name lambda-status-video-processing --zip-file fileb://build.zip",
     "build:upload": "npm run build && npm run upload",
     "test": "echo \"Error: no test specified\" && exit 1"
