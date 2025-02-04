@@ -1,0 +1,12 @@
+.postgres_data/
+.terraform/
+.localstack-data/
+.terraform*
+terraform.*
+
+node_modules/*
+uploads/*
+.history/*
+dist/*
+*.zip
+bkp/*

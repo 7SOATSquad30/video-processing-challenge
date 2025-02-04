@@ -1,4 +1,10 @@
 .localstack-data/
+.terraform*
+terraform.*
+
+node_modules/*
+uploads/*
+.history/*
 
 /**/*.zip
 /**/*.xzx

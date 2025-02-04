@@ -26,6 +26,46 @@ module "dynamodb" {
   dynamodb_partition_key = var.dynamodb_partition_key
 }
 
+resource "aws_dynamodb_table" "videos_dynamo_table" {
+  name           = var.dynamodb_table_name
+  hash_key       = "object_key"
+  billing_mode   = "PAY_PER_REQUEST"
+
+  attribute {
+    name = "object_key"
+    type = "S"
+  }
+
+  attribute {
+    name = "userId"
+    type = "S"
+  }
+
+  attribute {
+    name = "status"
+    type = "S"
+  }
+
+  attribute {
+    name = "timestamp"
+    type = "N"
+  }
+
+  global_secondary_index {
+    name               = "UserIdIndex"
+    hash_key           = "userId"
+    range_key          = "status"
+    projection_type    = "ALL"
+  }
+
+  global_secondary_index {
+    name               = "TimestampIndex"
+    hash_key           = "timestamp"
+    range_key          = "object_key"
+    projection_type    = "ALL"
+  }
+}
+
 # Connect the SQS module
 module "sqs" {
   source         = "./sqs"
