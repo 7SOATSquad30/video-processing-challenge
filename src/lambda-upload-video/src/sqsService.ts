@@ -1,26 +1,27 @@
 const AWS = require('aws-sdk');
-const sqs = new AWS.SQS();
+
+const isProd = process.env.NODE_ENV === 'production';
+const localstackEndpoint = process.env.LOCALSTACK_HOSTNAME;
+
+const sqs = new AWS.SQS(isProd ? undefined : {
+  region: "us-east-1",
+  endpoint: `http://${localstackEndpoint}:4566`, // LocalStack
+  accessKeyId: "test",
+  secretAccessKey: "test",
+});
 
 const queueUrl = 'sqs-processamento-video'; // TODO process.env.queueUrl;
 
-export async function addMessage(event: any) {
-  const messageBody = JSON.parse(event.body).message;
-
-  const params = {
-    QueueUrl: queueUrl,
-    MessageBody: messageBody
-  };
-
+export async function sqsSendMessage(params: any) {
   try {
-    const data = await sqs.sendMessage(params).promise();
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ message: 'Message sent successfully', data })
+    const data = {
+      QueueUrl: queueUrl,
+      MessageBody: JSON.stringify(params)
     };
+    const result = await sqs.sendMessage(data).promise();
+    console.log('Message sent successfully.', result);
+    return result;
   } catch (error: any) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message })
-    };
+    console.error('Error sending message.', error);
   }
 };

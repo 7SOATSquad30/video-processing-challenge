@@ -24,14 +24,6 @@ resource "aws_api_gateway_resource" "user_videos_user_videos_resource" {
   depends_on  = [aws_api_gateway_resource.user_videos_user_resource]
 }
 
-resource "aws_api_gateway_method" "get_user_videos" {
-  rest_api_id   = aws_api_gateway_rest_api.api.id
-  resource_id   = aws_api_gateway_resource.user_videos_user_videos_resource.id
-  http_method   = "GET"
-  authorization = "NONE"
-  depends_on    = [aws_api_gateway_resource.user_videos_user_videos_resource]
-}
-
 resource "aws_api_gateway_method" "post_user_videos_process" {
   rest_api_id   = aws_api_gateway_rest_api.api.id
   resource_id   = aws_api_gateway_resource.user_videos_user_videos_resource.id
@@ -46,8 +38,11 @@ resource "aws_api_gateway_integration" "lambda_integration" {
   http_method             = aws_api_gateway_method.post_user_videos_process.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.upload_lambda.invoke_arn
+  uri                     = aws_lambda_function.lambda_upload.invoke_arn
   depends_on              = [aws_api_gateway_method.post_user_videos_process]
+
+  passthrough_behavior = "WHEN_NO_MATCH"
+  content_handling     = "CONVERT_TO_TEXT"
 }
 
 resource "aws_api_gateway_deployment" "api_deployment" {
@@ -68,7 +63,7 @@ resource "aws_api_gateway_stage" "prod" {
 resource "aws_lambda_permission" "api_gateway_lambda" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.upload_lambda.function_name
+  function_name = aws_lambda_function.lambda_upload.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
 }

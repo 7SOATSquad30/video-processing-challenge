@@ -1,23 +1,102 @@
 const AWS = require('aws-sdk');
-const serverless = require('serverless-http');
+const busboy = require('busboy');
+const fs = require('fs');
+const path = require('path');
 
-import express from 'express';
-import multer from 'multer';
-import { storage } from './multerConfig';
-import fs from 'fs';
+import { s3Upload } from './s3Service';
+import { dynamoCreate } from './dynamoService';
+import { sqsSendMessage } from './sqsService';
 
-import { save } from './dynamoService';
-import { addMessage } from './sqsService';
+exports.handler = async (event: any) => {
+    try {
+        console.log('Event:', event);
+        const userId = event?.pathParameters?.userId || event?.userId;
+        const contentType = event.headers?.["Content-Type"] || event.headers?.["content-type"];
 
-const upload = multer({ storage });
+        const params: any = {
+          userId,
+          timestamp: new Date().getTime()
+        };
 
-const app = express();
+        if (!userId) {
+          return {
+            statusCode: 400,
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ error: 'Field usedId is required.' })
+          };
+        }
 
-const s3 = new AWS.S3();
+        // TODO recolocar validação após resolver problema API Gateway
+        // if (!contentType?.startsWith("multipart/form-data")) {
+        //     return {
+        //         statusCode: 400,
+        //         body: JSON.stringify({ message: "Invalid Content-Type" })
+        //     };
+        // }
 
-const bucket_name = "fiap-challenge-terraform-state"; // TODO process.env.bucketName;
-const inputDirectory = 'input';
+        // const bb = busboy({ headers: event.headers });
+        // const fileData: any = [];
 
+        // await new Promise((resolve: any, reject: any) => {
+        //     bb.on("file", (fieldname: any, file: any, filename: any, encoding: any, mimetype: any) => {
+        //         file.on("data", (data: any) => fileData.push(data));
+        //         file.on("end", () => {
+        //           params.file = filename;
+        //           resolve();
+        //       });
+        //     });
+
+        //     bb.on("error", (err: any) => reject(err));
+        //     bb.end(Buffer.from(event.body, "base64"));
+        // });
+
+        // TODO mock
+        params.file = 'video.mp4';
+
+        params.key = `${userId}_${params.timestamp}_${params.file.split('.')[0]}`;
+        params.videoName = `${userId}_${params.timestamp}_${params.file}`;
+        // params.body = Buffer.concat(fileData);
+        
+        // Cria um arquivo fake
+        const fakeFilePath = await createFakeFile(params.videoName);
+        params.body = fs.readFileSync(fakeFilePath);
+        params.ContentType = 'video/mp4'; // Adiciona Content-Type fake
+
+        console.log('Params:', JSON.stringify(params));
+        console.log('#################################################');
+        console.log('Uploading file to S3 bucket...');
+        await uploadToS3(params);
+
+        console.log('#################################################');
+        console.log('Saving data in DynamoDB...');
+        await persist(params);
+
+        console.log('#################################################');
+        console.log('Adding message in SQS...');
+        await addToQueue(params);
+
+        const message = `File ${params.videoName} was uploaded from user ${params.userId}.`;
+
+        console.log('#################################################');
+        console.log('Finished!');
+        console.log(message);
+
+        return {
+            statusCode: 200,
+            body: JSON.stringify({message})
+        };
+    } catch (error: any) {
+      console.error('Error', error);
+      return {
+          statusCode: 500,
+          body: JSON.stringify({ message: "Erro ao processar upload do video.", error: error.message })
+      };
+    }
+};
+
+/*
 app.post('/users/:userId/videos/process', upload.single('file'), async (req: any, res: any) => {
   console.log('req', req);
   
@@ -44,30 +123,18 @@ app.post('/users/:userId/videos/process', upload.single('file'), async (req: any
         body: JSON.stringify({ error: 'No video file in the request.' })
       };
     }
-    
-    const file = req.file;
-    const videoName = `${userId}_${timestamp}_${file.originalname}`;
-    const params = {
-      Bucket: bucket_name,
-      Key: `${inputDirectory}/${videoName}`,
-      Body: fs.createReadStream(file.path),
-    };
-    
+
     console.log('#################################################');
-    console.log('Uploading video to S3...');
-    await s3.upload(params, (err: any, data: any) => {
-      if (err) {
-        return res.status(500).send(err);
-      }
-    });
+    console.log('Uploading file to S3 bucket...');
+    await uploadToS3({userId, timestamp, file: req.file});
 
     console.log('#################################################');
     console.log('Saving data in DynamoDB...');
-    await persist({userId: 99, videoName: file.originalname, timestamp});
+    await persist({userId: 99, videoName: req.file.originalname, timestamp});
 
     console.log('#################################################');
     console.log('Adding message in SQS...');
-    await addToQueue({userId: 99, videoName: file.originalname});
+    await addToQueue({userId: 99, videoName: req.file.originalname});
 
     const msg = `File "${req.file.filename}" was uploaded.`;
 
@@ -94,38 +161,55 @@ app.use((err: any, req: any, res: any, next: any) => {
   } else {
     next(err);
   }
-});
+}); */
+
+async function uploadToS3(params: any) {
+  try {
+    await s3Upload(params);
+    console.log('OK - File uploaded to S3.');
+  } catch (error: any) {
+    console.error('S3 Error', error);
+    return error;
+  }
+}
 
 async function persist(params: any) {
   try {
-    const { userId, videoName, timestamp } = params;
-    const nameWithNoExtension = videoName.split('.')[0];
-    await save({
+    await dynamoCreate({
       body: {
-        object_key: `${userId}_${timestamp}_${nameWithNoExtension}`,
-        userId,
-        videoName: `${userId}_${timestamp}_${videoName}`,
-        timestamp: new Date(timestamp).toISOString(),
+        object_key: params.key,
+        userId: params.userId,
+        videoName: params.videoName,
+        timestamp: params.timestamp,
         status: 'A_PROCESSAR'
       }
     });
+    console.log('OK - Data saved in DynamoDB.');
   } catch (error: any) {
-    console.error('Error', error);
+    console.error('DynamoDB Error', error);
     return error;
   }
 }
 
 async function addToQueue(params: any) {
-  const { userId, videoName } = params;
-  const timestamp = new Date().getTime();
-  const nameWithNoExtension = videoName.split('.')[0];
-  await addMessage({
-    body: {
-      object_key: `${userId}_${timestamp}_${nameWithNoExtension}`,
-      userId,
-      videoName: `${userId}_${timestamp}_${videoName}`,
-    }
-  });
+  try {
+    await sqsSendMessage({
+      object_key: params.key,
+      userId: params.userId,
+      videoName: params.videoName
+    });
+    console.log('OK - Message added to SQS.');
+  } catch (error: any) {
+    console.error('SQS Error', error);
+    return error;
+  }
 }
 
-module.exports.handler = serverless(app);
+// Função para criar um arquivo fake
+async function createFakeFile(fileName: string): Promise<any> {
+    const filePath = path.join('/tmp', fileName);
+    await fs.writeFileSync(filePath, 'Conteúdo fake do arquivo de vídeo');
+    return filePath;
+}
+
+// module.exports.handler = serverless(app);

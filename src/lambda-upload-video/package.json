@@ -5,7 +5,7 @@
   "main": "lambda.js",
   "scripts": {
     "dev": "tsnd index.ts",
-    "build": "tsc && zip -r -j -4 build.zip dist node_modules",
+    "build": "tsc && zip -r -j -4 build.zip dist",
     "upload": "aws lambda update-function-code --endpoint-url http://localhost:4566 --function-name lambda-upload-video --zip-file fileb://build.zip",
     "build:upload": "npm run build && npm run upload",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,15 +14,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.1692.0",
-    "express": "^4.21.2",
-    "multer": "^1.4.5-lts.1",
-    "serverless-http": "^3.2.0"
+    "aws-sdk": "^2.1692.0"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0",
-    "@types/multer": "^1.4.12",
     "@types/node": "^22.12.0",
+    "busboy": "^1.6.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.7.3"
   }

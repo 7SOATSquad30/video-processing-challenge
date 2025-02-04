@@ -1,17 +1,33 @@
-data "archive_file" "upload_lambda" {
+data "archive_file" "lambda_upload" {
   type        = "zip"
   source_dir  = local.lambdas_path
   output_path = "files/${local.component_name}-artefact.zip"
 }
 
-resource "aws_lambda_function" "upload_lambda" {
-  filename         = data.archive_file.upload_lambda.output_path
+/*
+data "archive_file" "lambda_upload" {
+  type        = "zip"
+  #source_dir  = local.lambdas_path
+  output_path = "files/${local.component_name}-artefact.zip"
+  source {
+    content  = "${file("${local.lambdas_path}/node_modules")}"
+    filename = "node_modules"
+  }
+  source {
+    content  = "${file("${local.lambdas_path}/dist")}"
+  }
+}*/
+
+resource "aws_lambda_function" "lambda_upload" {
+  filename         = data.archive_file.lambda_upload.output_path
   function_name    = local.component_name
-  role             = aws_iam_role.upload_lambda.arn
+  role             = aws_iam_role.lambda_upload.arn
   handler          = "index.handler"
   runtime          = "nodejs20.x"
-  source_code_hash = data.archive_file.upload_lambda.output_base64sha256
+  source_code_hash = data.archive_file.lambda_upload.output_base64sha256
   architectures    = ["arm64"]
+  timeout          = 900
+  memory_size      = 512
 
   /*layers = [
     aws_lambda_layer_version.express_layer.arn

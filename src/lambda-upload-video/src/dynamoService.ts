@@ -11,26 +11,15 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient(isProd ? undefined : {
   secretAccessKey: "test",
 });
 
-export async function save(event: any) {
-  const item = JSON.parse(event.body);
-
-  const params = {
-    TableName: tableName,
-    Item: item
-  };
-
+export async function dynamoCreate(params: any) {
   try {
-    await dynamoDb.put(params).promise();
+    const data = {
+      TableName: tableName,
+      Item: params.body
+    };
+    await dynamoDb.put(data).promise();
     console.log('Item inserted successfully into DynamoDB.');
-    // return {
-    //   statusCode: 200,
-    //   body: JSON.stringify({ message: 'Item inserted successfully into DynamoDB.' })
-    // };
   } catch (error: any) {
     console.error('Error inserting item into DynamoDB.', error);
-    // return {
-    //   statusCode: 500,
-    //   body: JSON.stringify({ error: error.message })
-    // };
   }
 };

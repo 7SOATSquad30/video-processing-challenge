@@ -1,12 +1,12 @@
 /*output "bucket" {
   value = {
-    arn  = aws_s3_bucket.upload_lambda.arn
-    name = aws_s3_bucket.upload_lambda.id
+    arn  = aws_s3_bucket.lambda_upload.arn
+    name = aws_s3_bucket.lambda_upload.id
   }
 }
 
 output "s3_bucket_arn" {
-  value = aws_s3_bucket.upload_lambda.arn
+  value = aws_s3_bucket.lambda_upload.arn
 }
 
 output "sqs_queue_url" {
@@ -15,8 +15,8 @@ output "sqs_queue_url" {
 
 output "lambda" {
   value = {
-    arn        = aws_lambda_function.upload_lambda.arn
-    name       = aws_lambda_function.upload_lambda.function_name
-    invoke_arn = aws_lambda_function.upload_lambda.invoke_arn
+    arn        = aws_lambda_function.lambda_upload.arn
+    name       = aws_lambda_function.lambda_upload.function_name
+    invoke_arn = aws_lambda_function.lambda_upload.invoke_arn
   }
 }

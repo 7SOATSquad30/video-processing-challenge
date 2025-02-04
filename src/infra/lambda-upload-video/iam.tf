@@ -1,5 +1,5 @@
-resource "aws_iam_role" "upload_lambda" {
-  name = "upload_lambda_role"
+resource "aws_iam_role" "lambda_upload" {
+  name = "lambda_upload_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
@@ -13,7 +13,7 @@ resource "aws_iam_role" "upload_lambda" {
   })
 }
 
-data "aws_iam_policy_document" "upload_lambda" {
+data "aws_iam_policy_document" "lambda_upload" {
   statement {
     effect    = "Allow"
     resources = ["arn:aws:logs:*:*"]
@@ -41,7 +41,7 @@ data "aws_iam_policy_document" "upload_lambda" {
 
   statement {
     sid       = "AllowDynamoDBQuery"
-    effect   = "Allow"
+    effect    = "Allow"
     resources = ["*"]
     actions = [
       "dynamodb:InsertItem"
@@ -49,12 +49,12 @@ data "aws_iam_policy_document" "upload_lambda" {
   }
 }
 
-resource "aws_iam_policy" "upload_lambda" {
+resource "aws_iam_policy" "lambda_upload" {
   name   = "${local.component_name}-policy"
-  policy = data.aws_iam_policy_document.upload_lambda.json
+  policy = data.aws_iam_policy_document.lambda_upload.json
 }
 
-resource "aws_iam_role_policy_attachment" "upload_lambda_attach" {
-  policy_arn = aws_iam_policy.upload_lambda.arn
-  role       = aws_iam_role.upload_lambda.name
+resource "aws_iam_role_policy_attachment" "lambda_upload_attach" {
+  policy_arn = aws_iam_policy.lambda_upload.arn
+  role       = aws_iam_role.lambda_upload.name
 }

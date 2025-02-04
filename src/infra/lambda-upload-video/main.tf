@@ -1,5 +1,5 @@
 resource "aws_iam_role_policy_attachment" "lambda_policy" {
-  role       = aws_iam_role.upload_lambda.name
+  role       = aws_iam_role.lambda_upload.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
