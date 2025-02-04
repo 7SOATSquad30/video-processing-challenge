@@ -1,6 +1,6 @@
 import os
 import subprocess
-from app.src.config.config import logger
+from src.config.config import logger
 
 # Definição do caminho do FFmpeg a partir da camada da Lambda
 FFMPEG_BIN_PATH = '/opt/bin/ffmpeg'  # O binário será armazenado na camada Lambda

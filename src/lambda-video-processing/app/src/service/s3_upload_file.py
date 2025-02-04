@@ -1,5 +1,5 @@
 import boto3
-from app.src.config.config import logger
+from src.config.config import logger
 
 s3_client = boto3.client('s3')
 

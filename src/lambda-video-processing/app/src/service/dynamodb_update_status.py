@@ -1,5 +1,5 @@
 import boto3
-from app.src.config.config import logger
+from src.config.config import logger
 
 dynamodb = boto3.client('dynamodb')
 
@@ -8,7 +8,7 @@ def update_status_in_dynamodb(table_name, object_key, status):
     Atualiza o status de processamento no DynamoDB.
 
     :param table_name: Nome da tabela DynamoDB.
-    :param object_key: Chave do objeto no S3.
+    :param object_key: Nome do video.
     :param status: Novo status a ser atualizado.
     """
     try:
