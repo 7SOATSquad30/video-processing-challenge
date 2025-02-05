@@ -6,22 +6,19 @@ infrastructure/down:
 
 deploy/dev:
 	docker exec -it builder /bin/bash -c "\
+		make -C ./src/lambda-video-processing build-ffmpeg-layer && \
+		make -C ./src/lambda-video-processing build && \
+		make -C ./src/lambda-upload-video build && \
+		make -C ./src/lambda-status-video-processing build && \
 		tflocal -chdir='./src/infra/shared' init \
 			-backend-config='force_path_style=true' && \
 		tflocal -chdir='./src/infra/shared' apply \
 			-auto-approve \
 			-var='ses_domain_identity_name=7soat.fiap.example' \
 			-var='ses_email_address=7soat@fiap.example' && \
-		make -C ./src/lambda-video-processing build && \
-		make -C ./src/lambda-video-processing build-ffmpeg-layer && \
-		tflocal -chdir='./src/infra/lambda-video-processing' init \
-			-backend-config='force_path_style=true' && \
-		tflocal -chdir='./src/infra/lambda-video-processing' apply -auto-approve && \
-		make -C ./src/lambda-upload-video build && \
 		tflocal -chdir='./src/infra/lambda-upload-video' init \
 			-backend-config='force_path_style=true' && \
 		tflocal -chdir='./src/infra/lambda-upload-video' apply -auto-approve && \
-		make -C ./src/lambda-status-video-processing build && \
 		tflocal -chdir='./src/infra/lambda-status-video-processing' init \
 			-backend-config='force_path_style=true' && \
 		tflocal -chdir='./src/infra/lambda-status-video-processing' apply -auto-approve"
