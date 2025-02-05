@@ -6,10 +6,6 @@ variable "lambda_iam_role_to_assume_arn" {
   type = string
 }
 
-variable "lambda_source_dir" {
-  type = string
-}
-
 variable "lambda_output_path" {
   type = string
 }
