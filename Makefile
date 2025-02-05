@@ -5,7 +5,7 @@ infrastructure/down:
 	docker-compose down --remove-orphans
 
 build/with-docker:
-	docker exec -it builder /bin/bash -c "make build"
+	docker exec builder /bin/bash -c "make build"
 
 build:
 	make -C ./src/lambda-video-processing build-ffmpeg-layer && \
@@ -14,7 +14,7 @@ build:
 	make -C ./src/lambda-status-video-processing build
 
 deploy/dev/with-docker:
-	docker exec -it builder /bin/bash -c "make deploy/dev"
+	docker exec builder /bin/bash -c "make deploy/dev"
 
 deploy/dev:
 	tflocal -chdir='./src/infra/shared' init \
