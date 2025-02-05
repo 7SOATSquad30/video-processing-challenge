@@ -1,11 +1,11 @@
-resource "aws_iam_role" "lambda_status" {
-  name = "lambda_status_role"
+resource "aws_iam_role" "role" {
+  name = "${var.lambda_name}_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
       Action = "sts:AssumeRole",
       Effect = "Allow",
-      Sid    = "",
+      Sid    = "${var.lambda_name}_sts",
       Principal = {
         Service = "lambda.amazonaws.com"
       },
@@ -13,7 +13,7 @@ resource "aws_iam_role" "lambda_status" {
   })
 }
 
-data "aws_iam_policy_document" "lambda_status" {
+data "aws_iam_policy_document" "policy_document" {
   statement {
     effect    = "Allow"
     resources = ["arn:aws:logs:*:*"]
@@ -38,12 +38,12 @@ data "aws_iam_policy_document" "lambda_status" {
   }
 }
 
-resource "aws_iam_policy" "lambda_status" {
-  name   = "${local.component_name}-policy"
-  policy = data.aws_iam_policy_document.lambda_status.json
+resource "aws_iam_policy" "policy" {
+  name   = "${var.lambda_name}-policy"
+  policy = data.aws_iam_policy_document.policy_document.json
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_status_attach" {
-  policy_arn = aws_iam_policy.lambda_status.arn
-  role       = aws_iam_role.lambda_status.name
+resource "aws_iam_role_policy_attachment" "policy_attach" {
+  policy_arn = aws_iam_policy.policy.arn
+  role       = aws_iam_role.role.name
 }

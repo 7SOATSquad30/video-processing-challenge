@@ -18,3 +18,5 @@ src/infra/**/.terraform.lock.hcl
 src/infra/**/terraform.tfstate
 src/infra/**/terraform.tfstate.backup
 src/infra/**/localstack_providers_override.tf
+
+**/.DS_store

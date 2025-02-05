@@ -4,6 +4,17 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "s3_use_path_style" {
+  description = "S3 use path style"
+  type        = bool
+  default     = false
+}
+
+variable "lambda_name" {
+  description = "S3 use path style"
+  default     = "lambda-upload-video"
+}
+
 variable "s3_bucket_name" {
   default = "video-processing-files"
 }
