@@ -1,6 +1,6 @@
 resource "aws_api_gateway_rest_api" "api" {
   name        = "User Videos API"
-  description = "API to fetch user videos"
+  description = "API to fetch videos"
 }
 
 resource "aws_api_gateway_resource" "user_videos_resource" {
@@ -38,7 +38,7 @@ resource "aws_api_gateway_integration" "lambda_integration" {
   http_method             = aws_api_gateway_method.get_user_videos.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.lambda_status.invoke_arn
+  uri                     = var.lambda_invoke_arn
   depends_on              = [aws_api_gateway_method.get_user_videos]
 }
 
@@ -60,7 +60,7 @@ resource "aws_api_gateway_stage" "prod" {
 resource "aws_lambda_permission" "api_gateway_lambda" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.lambda_status.function_name
+  function_name = var.lambda_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
 }

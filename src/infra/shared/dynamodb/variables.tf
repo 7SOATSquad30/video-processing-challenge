@@ -9,3 +9,8 @@ variable "dynamodb_partition_key" {
   description = "DynamodB partition key"
   type        = string
 }
+
+variable "dynamodb_range_key" {
+  description = "DynamodB range key"
+  type        = string
+}

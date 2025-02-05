@@ -36,13 +36,6 @@ jobs:
           key: terraform-${{ runner.os }}-${{ hashFiles('src/infra/**/*.tf') }}
           restore-keys: terraform-${{ runner.os }}-
 
-      - name: Deploy - Infra basica terraform
-        working-directory: ./src/infra/
-        run: |
-          terraform -chdir='./tfstate' init
-          terraform -chdir='./tfstate' plan -out=plan_tfstate
-          terraform -chdir='./tfstate' apply -auto-approve plan_tfstate
-
       - name: Deploy - Infra compartilhada
         working-directory: ./src/infra/
         run: |

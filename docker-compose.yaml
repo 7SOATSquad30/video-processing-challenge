@@ -4,7 +4,7 @@ services:
     image: localstack/localstack:latest
     container_name: localstack
     environment:
-      SERVICES: "dynamodb,iam,lambda,logs,s3,ses,sns,sqs,ssm,sts"
+      SERVICES: "dynamodb,iam,lambda,logs,s3,ses,sns,sqs,ssm,sts,apigateway"
       EDGE_PORT: 4566
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
@@ -12,7 +12,7 @@ services:
       - "4566:4566"
       - "4571:4571"
     volumes:
-      - ./.localstack-data:/var/lib/localstack
+      - ./scripts/localstack.d:/etc/localstack/init/ready.d
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - localstack-network

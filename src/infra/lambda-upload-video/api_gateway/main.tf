@@ -38,7 +38,7 @@ resource "aws_api_gateway_integration" "lambda_integration" {
   http_method             = aws_api_gateway_method.post_user_videos_process.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.lambda_upload.invoke_arn
+  uri                     = var.lambda_invoke_arn
   depends_on              = [aws_api_gateway_method.post_user_videos_process]
 
   passthrough_behavior = "WHEN_NO_MATCH"
@@ -63,7 +63,7 @@ resource "aws_api_gateway_stage" "prod" {
 resource "aws_lambda_permission" "api_gateway_lambda" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.lambda_upload.function_name
+  function_name = var.lambda_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
 }
