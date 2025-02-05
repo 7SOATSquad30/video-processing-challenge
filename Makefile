@@ -4,24 +4,25 @@ infrastructure/up:
 infrastructure/down:
 	docker-compose down --remove-orphans
 
+build/with-docker:
+	docker exec -it builder /bin/bash -c "make build"
+
+build:
+	make -C ./src/lambda-video-processing build-ffmpeg-layer && \
+	make -C ./src/lambda-video-processing build && \
+	make -C ./src/lambda-upload-video build && \
+	make -C ./src/lambda-status-video-processing build
+
+deploy/dev/with-docker:
+	docker exec -it builder /bin/bash -c "make deploy/dev"
+
 deploy/dev:
-	docker exec -it builder /bin/bash -c "\
-		make -C ./src/lambda-video-processing build-ffmpeg-layer && \
-		make -C ./src/lambda-video-processing build && \
-		make -C ./src/lambda-upload-video build && \
-		make -C ./src/lambda-status-video-processing build && \
-		tflocal -chdir='./src/infra/shared' init \
-			-backend-config='force_path_style=true' && \
-		tflocal -chdir='./src/infra/shared' apply \
-			-auto-approve \
-			-var='ses_domain_identity_name=7soat.fiap.example' \
-			-var='ses_email_address=7soat@fiap.example' && \
-		tflocal -chdir='./src/infra/lambda-upload-video' init \
-			-backend-config='force_path_style=true' && \
-		tflocal -chdir='./src/infra/lambda-upload-video' apply -auto-approve && \
-		tflocal -chdir='./src/infra/lambda-status-video-processing' init \
-			-backend-config='force_path_style=true' && \
-		tflocal -chdir='./src/infra/lambda-status-video-processing' apply -auto-approve"
+	tflocal -chdir='./src/infra/shared' init \
+		-backend-config='force_path_style=true' && \
+	tflocal -chdir='./src/infra/shared' apply \
+		-auto-approve \
+		-var='ses_domain_identity_name=7soat.fiap.example' \
+		-var='ses_email_address=7soat@fiap.example'
 
 infrastructure/logs:
 	docker-compose logs -f

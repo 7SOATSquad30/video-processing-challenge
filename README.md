@@ -7,21 +7,13 @@
 Windows:
 ```
 docker-compose up -d
-
-docker exec -it builder /bin/bash -c "\
-	tflocal -chdir='./src/infra/tfstate' init -backend-config='force_path_style=true' && \
-	tflocal -chdir='./src/infra/tfstate' apply -auto-approve && \
-	tflocal -chdir='./src/infra/shared' init -backend-config='force_path_style=true' && \
-	tflocal -chdir='./src/infra/shared' apply -auto-approve && \
-	make -C ./src/lambda-video-processing build && \
-	make -C ./src/lambda-video-processing build-ffmpeg-layer && \
-	tflocal -chdir='./src/infra/lambda-video-processing' init -backend-config='force_path_style=true' && \
-	tflocal -chdir='./src/infra/lambda-video-processing' apply -auto-approve \
-"
+docker exec -it builder /bin/bash -c "make build"
+docker exec -it builder /bin/bash -c "make deploy/dev"
 ```
 
 Linux ou MacOS:
 ```
 make infrastructure/up
-make deploy/dev
+make build/with-docker
+make deploy/dev/with-docker
 ```
