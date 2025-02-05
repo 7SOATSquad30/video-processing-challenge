@@ -7,8 +7,8 @@
 Windows:
 ```
 docker-compose up -d
-docker exec -it builder /bin/bash -c "make build"
-docker exec -it builder /bin/bash -c "make deploy/dev"
+docker exec builder /bin/bash -c "make build"
+docker exec builder /bin/bash -c "make deploy/dev"
 ```
 
 Linux ou MacOS:
