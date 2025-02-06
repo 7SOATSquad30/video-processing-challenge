@@ -32,3 +32,7 @@ variable "ses_smtp_policy_name" {
   description = "SMTP user policy"
   default     = "video-processing-smtp-policy"
 }
+
+variable "environment" {
+  description = "production or development"
+}

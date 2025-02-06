@@ -21,6 +21,7 @@ deploy/dev:
 		-backend-config='force_path_style=true' && \
 	tflocal -chdir='./src/infra/shared' apply \
 		-auto-approve \
+		-var='environment=development' \
 		-var='ses_domain_identity_name=7soat.fiap.example' \
 		-var='ses_email_address=7soat@fiap.example'
 

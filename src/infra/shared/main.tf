@@ -118,6 +118,7 @@ module "lambda_video_processing" {
     DYNAMODB_TABLE_NAME  = module.dynamodb.dynamodb_table_name
     S3_BUCKET            = module.s3.s3_bucket_name
     SES_SOURCE_EMAIL     = module.ses.ses_user_email
+    ENVIRONMENT          = var.environment
   }
 
   depends_on = [module.iam_lambda_video_processing, module.lambda_video_processing_ffmpeg_layer]
@@ -172,6 +173,7 @@ module "lambda_upload_video" {
     DYNAMODB_TABLE_NAME  = module.dynamodb.dynamodb_table_name
     SES_SOURCE_EMAIL     = module.ses.ses_user_email
     INPUT_S3_BUCKET      = module.s3.s3_bucket_name
+    ENVIRONMENT          = var.environment
   }
 
   depends_on = [module.iam_lambda_upload_video]
@@ -240,6 +242,7 @@ module "lambda_status_video_processing" {
   lambda_iam_role_to_assume_arn = module.iam_lambda_status_video_processing.lambda_iam_role_to_assume_arn
   lambda_environment = {
     DYNAMODB_TABLE_NAME  = module.dynamodb.dynamodb_table_name
+    ENVIRONMENT          = var.environment
   }
 
   depends_on = [module.iam_lambda_status_video_processing]
