@@ -1,77 +1,68 @@
-const AWS = require('aws-sdk');
+import { getConfigs } from "./config";
 
-// const dynamoDb = new AWS.DynamoDB.DocumentClient();
-const tableName = 'table_videos'; // TODO process.env.tableName;
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 
-const isProd = process.env.NODE_ENV === 'production';
+const configs = getConfigs();
 
-const localstackEndpoint = process.env.LOCALSTACK_HOSTNAME;
-
-const dynamoDb = new AWS.DynamoDB.DocumentClient(isProd ? undefined : {
-  region: "us-east-1",
-  endpoint: `http://${localstackEndpoint}:4566`, // LocalStack
-  accessKeyId: "test",
-  secretAccessKey: "test",
-});
+const dynamoClient = new DynamoDBClient(configs.dynamo.client);
+const documentClient = DynamoDBDocumentClient.from(dynamoClient);
 
 exports.handler = async (event: any) => {
   console.log('event', event);
 
-  try {
-    const userId = event?.pathParameters?.userId || event?.userId;
+  const userId = event?.pathParameters?.userId || event?.userId;
     if (!userId) {
       return {
         statusCode: 400,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ error: 'Field usedId is required.' })
+        body: JSON.stringify({ error: 'Field usedId is required.' }),
       };
     }
 
-    const params = {
-      TableName: tableName,
-      IndexName: "TimestampIndex",
-      ScanIndexForward: true, // ascendent order
-      KeyConditionExpression: "#userId = :userId",
-      ExpressionAttributeNames: {
-        "#userId": "userId"
-      },
-      ExpressionAttributeValues: {
-        ":userId": "" + userId
-      }
-    };
-    
-    console.log('params', params);
+  try {
+    const userVideos = await getUserVideos(userId);
+    console.log('userVideos', userVideos);
 
-    const data = await dynamoDb.query(params).promise();
-    console.log('data', data);
-
-    if (!data.Items || data.Items.length === 0) {
+    if (!userVideos || userVideos.length === 0) {
       return {
         statusCode: 404,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ error: 'User or videos not found.' })
+        body: JSON.stringify({ error: 'User or videos not found.' }),
       };
     }
 
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ videos: data.Items })
+      body: JSON.stringify({ videos: userVideos }),
     };
   } catch (error: any) {
     console.error('Error', error);
     return {
       statusCode: 500,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ error: error.message })
+      body: JSON.stringify({ error: 'Internal server error' }),
     };
   }
 };
+
+const getUserVideos = async (userId: string) => {
+  const query = new QueryCommand({
+    TableName: configs.dynamo.tableName,
+    KeyConditionExpression: "#userId = :userId",
+    ExpressionAttributeNames: { "#userId": "user_id" },
+    ExpressionAttributeValues: { ":userId": userId },
+  });
+
+  const data = await documentClient.send(query);
+  return data.Items;
+}

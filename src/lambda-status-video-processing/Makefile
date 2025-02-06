@@ -1,4 +1,4 @@
 build:
-	@echo "📦 Instalando dependências..."
+	@echo "📦 (lambda-status-video-processing) Instalando dependências..."
 	npm ci --save-dev && npm run build
-	@echo "✅ Dependências instaladas!"
+	@echo "✅ (lambda-status-video-processing) Dependências instaladas!"
