@@ -171,7 +171,7 @@ module "lambda_upload_video" {
   lambda_iam_role_to_assume_arn = module.iam_lambda_upload_video.lambda_iam_role_to_assume_arn
   lambda_environment = {
     DYNAMODB_TABLE_NAME  = module.dynamodb.dynamodb_table_name
-    SES_SOURCE_EMAIL     = module.ses.ses_user_email
+    SQS_QUEUE_URL        = module.sqs.sqs_queue_url
     INPUT_S3_BUCKET      = module.s3.s3_bucket_name
     ENVIRONMENT          = var.environment
   }

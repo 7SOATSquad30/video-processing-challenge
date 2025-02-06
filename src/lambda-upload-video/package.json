@@ -4,8 +4,8 @@
   "description": "",
   "main": "lambda.js",
   "scripts": {
-    "dev": "tsnd index.ts",
-    "build": "tsc && zip -r -j -4 build.zip dist",
+    "dev": "tsnd ./src/index.ts",
+    "build": "tsc && zip -r -4 build.zip . -i 'dist/*' -i 'node_modules/*' -i 'package.json'",
     "upload": "aws lambda update-function-code --endpoint-url http://localhost:4566 --function-name lambda-upload-video --zip-file fileb://build.zip",
     "build:upload": "npm run build && npm run upload",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,11 +14,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.1692.0"
+    "@aws-sdk/client-dynamodb": "^3.741.0",
+    "@aws-sdk/client-s3": "^3.741.0",
+    "@aws-sdk/client-sqs": "^3.741.0",
+    "@aws-sdk/lib-dynamodb": "^3.741.0",
+    "@aws-sdk/lib-storage": "^3.741.0",
+    "busboy": "^1.6.0"
   },
   "devDependencies": {
+    "@types/busboy": "^1.5.4",
     "@types/node": "^22.12.0",
-    "busboy": "^1.6.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.7.3"
   }

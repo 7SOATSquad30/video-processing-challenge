@@ -10,6 +10,10 @@ output "sqs_queue_arn" {
   value       = aws_sqs_queue.video_processing_queue.arn
 }
 
+output "sqs_queue_url" {
+  value = aws_sqs_queue.video_processing_queue.url
+}
+
 # SQS Dead-letter queue ID
 output "sqs_dlq_id" {
   description = "SQS Dead-letter queue ID"
