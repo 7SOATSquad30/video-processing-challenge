@@ -1,24 +1,16 @@
-const AWS = require('aws-sdk');
-const busboy = require('busboy');
-const fs = require('fs');
-const path = require('path');
+import { Video, VideoProcessingStatus } from "./model";
+import { File, saveFile } from "./storage.service";
+import { saveVideo } from "./video.repository";
+import { notifyNewVideoToBeProcessed } from "./messaging.service";
 
-import { s3Upload } from './s3Service';
-import { dynamoCreate } from './dynamoService';
-import { sqsSendMessage } from './sqsService';
+import busboy from 'busboy';
+import { PassThrough } from 'node:stream';
 
 exports.handler = async (event: any) => {
     try {
         console.log('Event:', event);
+        
         const userId = event?.pathParameters?.userId || event?.userId;
-        const contentType = event.headers?.["Content-Type"] || event.headers?.["content-type"];
-
-        const params: any = {
-          userId,
-          timestamp: new Date().getTime(),
-          contentType
-        };
-
         if (!userId) {
           return {
             statusCode: 400,
@@ -27,54 +19,58 @@ exports.handler = async (event: any) => {
           };
         }
 
+        const contentType = event.headers?.["Content-Type"] || event.headers?.["content-type"];
         if (!contentType?.startsWith("multipart/form-data")) {
-            return {
-                statusCode: 400,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: "Invalid Content-Type" })
-            };
+          return {
+            statusCode: 400,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: "Invalid Content-Type" })
+          };
+        }
+
+        let body = event.body;
+        if (event.isBase64Encoded) {
+            body = Buffer.from(event.body, 'base64');
         }
 
         event.headers['content-type'] = contentType;
         const bb = busboy({ headers: event.headers });
-        const fileData: any = [];
+        const fileDataStream = new PassThrough();
+        let fileName: string;
 
-        console.log('#################################################');
         console.log('Receiving file...');
         const promise = new Promise((resolve: any, reject: any) => {
-            bb.on("file", (fieldname: any, file: any, fileParams: any, encoding: any, mimetype: any) => {
-              params.filename = fileParams.filename;
-              file.on("data", (data: any) => fileData.push(data));
+            bb.on("file", (_fieldName: any, file: any, fileParams: any, _encoding: any, _mimetype: any) => {
+              fileName = fileParams.filename;
+              file.pipe(fileDataStream);
               file.on("end", () => console.log(`Finished receiving file: ${fileParams.filename}`));
             });
             bb.on("error", (err: any) => reject(err));
             bb.on("finish", () => resolve());
         });
 
-        bb.end(Buffer.from(event.body));
+        bb.end(body);
         await promise;
-        
-        params.key = `${userId}_${params.timestamp}_${params.filename.split('.')[0]}`;
-        params.videoName = `${userId}_${params.timestamp}_${params.filename}`;
-        params.body = Buffer.concat(fileData);
-        console.log('Params:', JSON.stringify(params));
-        
-        console.log('#################################################');
-        console.log('Uploading file to S3 bucket...');
-        await uploadToS3(params);
 
-        console.log('#################################################');
-        console.log('Saving data in DynamoDB...');
-        await persist(params);
+        const file: File = {
+          name: fileName!,
+          data: fileDataStream,
+        }
 
-        console.log('#################################################');
-        console.log('Adding message in SQS...');
-        await addToQueue(params);
+        const uploadTimestamp = new Date().getTime();
+        const video: Video = {
+          userId,
+          videoId: uploadTimestamp.toString(),
+          status: VideoProcessingStatus.ENQUEUED,
+          s3ObjectKey: `input/${userId}_${uploadTimestamp}_${file.name}`,
+          timestamp: uploadTimestamp,
+        }
 
-        const message = `File ${params.videoName} was uploaded from user ${params.userId}.`;
+        await saveFile(file, video.s3ObjectKey);
+        await saveVideo(video);
+        await notifyNewVideoToBeProcessed(video);
 
-        console.log('#################################################');
-        console.log('Finished!');
+        const message = `File ${file.name} was uploaded for user ${userId}.`;
         console.log(message);
 
         return {
@@ -89,47 +85,3 @@ exports.handler = async (event: any) => {
       };
     }
 };
-
-
-async function uploadToS3(params: any) {
-  try {
-    console.log('S3 Params:', params);
-    await s3Upload(params);
-    console.log('S3 OK - File uploaded to S3.');
-  } catch (error: any) {
-    console.error('S3 Error', error);
-    return error;
-  }
-}
-
-async function persist(params: any) {
-  try {
-    await dynamoCreate({
-      body: {
-        object_key: params.key,
-        userId: params.userId,
-        videoName: params.videoName,
-        timestamp: params.timestamp,
-        status: 'A_PROCESSAR'
-      }
-    });
-    console.log('DynamoDB OK - Data saved in DynamoDB.');
-  } catch (error: any) {
-    console.error('DynamoDB Error', error);
-    return error;
-  }
-}
-
-async function addToQueue(params: any) {
-  try {
-    await sqsSendMessage({
-      object_key: params.key,
-      userId: params.userId,
-      videoName: params.videoName
-    });
-    console.log('SQS OK - Message added to SQS.');
-  } catch (error: any) {
-    console.error('SQS Error', error);
-    return error;
-  }
-}
