@@ -34,17 +34,14 @@ variable "identity_pool_name" {
 }
 
 variable "cognito_app_client_name" {
-  app_client_name = ""
   type        = string
 }
 
 variable "cognito_cognito_domain" {
-  cognito_domain = ""
   type        = string
 }
 
 variable "logout_urls" {
-  app_client_name = ""
   type        = string
 }
 
