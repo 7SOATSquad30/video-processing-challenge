@@ -179,21 +179,29 @@ module "lambda_upload_video" {
   depends_on = [module.iam_lambda_upload_video]
 }
 
+module "api_routes" {
+  source = "./api_gateway/route_resources"
+  api_id = module.api_gateway.api_id
+  api_root_resource_id = module.api_gateway.api_root_resource_id
+
+  depends_on = [module.api_gateway]
+}
+
 module "lambda_upload_video_api_routes" {
   source = "./api_gateway/routes"
   api_id = module.api_gateway.api_id
   api_root_resource_id = module.api_gateway.api_root_resource_id
-  routes = [{
-    path_parts = ["users", "{userId}", "videos"]
+  integration = {
     http_method = "POST"
+    resource_id = module.api_routes.resource_id
     integration_type = "AWS_PROXY"
     integration_http_method = "POST"
     integration_uri = module.lambda_upload_video.lambda_invoke_arn
     passthrough_behavior = "WHEN_NO_MATCH"
     content_handling = "CONVERT_TO_TEXT"
-  }]
+  }
 
-  depends_on = [module.api_gateway, module.lambda_upload_video]
+  depends_on = [module.api_gateway, module.lambda_upload_video, module.api_routes]
 }
 resource "aws_lambda_permission" "lambda_upload_video_api_routes_permission" {
   statement_id  = "AllowAPIGatewayInvoke"
@@ -252,17 +260,17 @@ module "lambda_status_video_processing_api_routes" {
   source = "./api_gateway/routes"
   api_id = module.api_gateway.api_id
   api_root_resource_id = module.api_gateway.api_root_resource_id
-  routes = [{
-    path_parts = ["users", "{userId}", "videos"]
+  integration = {
     http_method = "GET"
+    resource_id = module.api_routes.resource_id
     integration_type = "AWS_PROXY"
     integration_http_method = "POST"
     integration_uri = module.lambda_status_video_processing.lambda_invoke_arn
     passthrough_behavior = "WHEN_NO_MATCH"
     content_handling = "CONVERT_TO_TEXT"
-  }]
+  }
 
-  depends_on = [module.api_gateway, module.lambda_status_video_processing]
+  depends_on = [module.api_gateway, module.lambda_status_video_processing, module.api_routes]
 }
 resource "aws_lambda_permission" "lambda_status_video_processing_api_routes_permission" {
   statement_id  = "AllowAPIGatewayInvoke"
