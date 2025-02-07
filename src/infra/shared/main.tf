@@ -106,7 +106,7 @@ module "lambda_video_processing" {
   lambda_name                   = "lambda_video_processing"
   lambda_output_path            = "../../lambda-video-processing/deployment_package.zip"
   lambda_runtime                = "python3.13"
-  lambda_handler                = "app.lambda_function.lambda_handler"
+  lambda_handler                = "lambda_function.lambda_handler"
   lambda_timeout                = 900
   lambda_memsize                = 512
   lambda_ephemeral_storage      = 10240
@@ -122,6 +122,14 @@ module "lambda_video_processing" {
   }
 
   depends_on = [module.iam_lambda_video_processing, module.lambda_video_processing_ffmpeg_layer]
+}
+
+resource "aws_lambda_event_source_mapping" "sqs_event_source" {
+  event_source_arn = module.sqs.sqs_queue_arn
+  function_name    = module.lambda_video_processing.lambda_arn
+  batch_size       = 5
+
+  depends_on = [module.sqs, module.lambda_video_processing]
 }
 
 module "iam_lambda_upload_video" {

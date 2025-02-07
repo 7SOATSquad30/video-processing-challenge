@@ -16,13 +16,14 @@ endif
 build:
 	@echo "🔧 (lambda-video-processing) Criando diretórios necessários..."
 	rm -rf package
+	rm -f $(ZIP_FILE)
 	mkdir -p package/tmp
 	@echo "📦 (lambda-video-processing) Instalando dependências..."
 	pip install --target ./package -r app/requirements.txt
 	@echo "📦 (lambda-video-processing) Compactando pacote de implantação..."
 	cd package && zip -r9 ../$(ZIP_FILE) . -x "*.zip" "*.tar.xz" "ffmpeg-layer/*"
-	zip -g $(ZIP_FILE) app/lambda_function.py
-	zip -g $(ZIP_FILE) $(shell find app/src -type f)
+	zip -g $(ZIP_FILE) -j app/lambda_function.py
+	cd app && zip -r ../$(ZIP_FILE) src
 	@echo "✅ (lambda-video-processing) Pacote de implantação criado: $(ZIP_FILE)"
 
 .PHONY: build-ffmpeg-layer
@@ -34,7 +35,7 @@ build-ffmpeg-layer:
 	mkdir -p $(LAYER_DIR)/bin
 	tar -xJf ffmpeg-release-amd64-static.tar.xz --strip-components=1 -C $(LAYER_DIR)/bin
 	@echo "📦 (lambda-video-processing) Compactando camada FFmpeg..."
-	cd $(LAYER_DIR) && zip -r9 ../$(LAYER_ZIP) . -x "*.zip" "*.tar.xz" "app/*" "package/*"
+	cd $(LAYER_DIR) && zip -r9 ../$(LAYER_ZIP) .
 	@echo "✅ (lambda-video-processing) Pacote do ffmpeg criado: $(LAYER_ZIP)"
 
 .PHONY: clean

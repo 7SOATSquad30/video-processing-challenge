@@ -10,7 +10,6 @@ def download_file_from_s3(bucket_name: str, video_name: str, download_path: str)
     :param download_path: Caminho local onde o arquivo será salvo.
     """
     try:
-        video_name = f"input/{video_name}"
         s3_client = boto3.client('s3')
         logger.info(f"Conectado ao bucket '{bucket_name}'")
         logger.info(f"Tentando baixar o arquivo '{video_name}'...")

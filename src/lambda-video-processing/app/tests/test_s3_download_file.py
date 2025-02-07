@@ -17,7 +17,7 @@ class TestDownloadFileFromS3:
         s3_client = boto3.client('s3', region_name='us-east-1')
         bucket_name = 'test-bucket'
         video_name = 'test_video.mp4'
-        object_key = f"input/{video_name}"
+        object_key = video_name
         download_path = '/tmp/test_video.mp4'
 
         # Cria um bucket e adiciona um arquivo de teste
