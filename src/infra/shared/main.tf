@@ -14,7 +14,7 @@ provider "aws" {
 
 module "s3" {
   source             = "./s3"
-  output_s3_bucket   = "teste-arquivos-videos"
+  output_s3_bucket   = "output-arquivos-videos"
   bucket_name_ffmpeg = "ffmpeg-package-for-lambda"
 }
 
@@ -46,7 +46,7 @@ module "ses" {
 }
 
 module "api_gateway" {
-  source = "./api_gateway/api"
+  source   = "./api_gateway/api"
   api_name = "video-upload-api"
 }
 
@@ -62,14 +62,14 @@ module "cognito" {
 }
 
 module "iam_lambda_video_processing" {
-  source = "./iam"
-  role_name = "lambda_video_processing_role"
+  source    = "./iam"
+  role_name = "LambdaVideoProcessingRole"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
       Action = "sts:AssumeRole",
       Effect = "Allow",
-      Sid    = "lambda_video_processing_role_sts",
+      Sid    = "LambdaVideoProcessingRoleSts",
       Principal = {
         Service = "lambda.amazonaws.com"
       },
@@ -77,24 +77,24 @@ module "iam_lambda_video_processing" {
   })
   policy_statements = [
     {
-      Effect    = "Allow"
+      Effect   = "Allow"
       Resource = ["*"]
       Action   = ["s3:GetObject", "s3:PutObject", "s3:PutBucketAcl"]
     },
     {
-      Effect    = "Allow"
+      Effect   = "Allow"
       Resource = ["*"]
       Action   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"]
     },
     {
-      Effect    = "Allow"
+      Effect   = "Allow"
       Resource = ["*"]
-      Action = ["dynamodb:UpdateItem", "dynamodb:GetItem"]
+      Action   = ["dynamodb:UpdateItem", "dynamodb:GetItem"]
     },
     {
-      Effect = "Allow",
+      Effect   = "Allow",
       Resource = ["*"]
-      Action = ["ses:SendEmail"],
+      Action   = ["ses:SendEmail"],
     },
   ]
 
@@ -102,48 +102,56 @@ module "iam_lambda_video_processing" {
 }
 
 module "lambda_video_processing_ffmpeg_layer" {
-  source = "./lambda_layer"
-  layer_name = "ffmpeg-layer"
-  layer_bucket_name = "ffmpeg-package-for-lambda"
-  layer_bucket_key = "ffmpeg_layer"
+  source                    = "./lambda_layer"
+  layer_name                = "ffmpeg-layer"
+  layer_bucket_name         = "ffmpeg-package-for-lambda"
+  layer_bucket_key          = "ffmpeg_layer"
   layer_compatible_runtimes = ["python3.9", "python3.10", "python3.11", "python3.12", "python3.13"]
-  layer_zipfile_path = "../../lambda-video-processing/ffmpeg-layer.zip"
+  layer_zipfile_path        = "../../lambda-video-processing/ffmpeg-layer.zip"
 
   depends_on = [module.s3]
 }
 
 module "lambda_video_processing" {
-  source = "./lambda"
-  lambda_name = "lambda_video_processing"
-  lambda_output_path = "../../lambda-video-processing/deployment_package.zip"
-  lambda_runtime = "python3.13"
-  lambda_handler = "app.lambda_function.lambda_handler"
-  lambda_timeout = 900
-  lambda_memsize = 512
-  lambda_ephemeral_storage = 10240
+  source                        = "./lambda"
+  lambda_name                   = "lambda_video_processing"
+  lambda_output_path            = "../../lambda-video-processing/deployment_package.zip"
+  lambda_runtime                = "python3.13"
+  lambda_handler                = "lambda_function.lambda_handler"
+  lambda_timeout                = 900
+  lambda_memsize                = 512
+  lambda_ephemeral_storage      = 10240
   lambda_iam_role_to_assume_arn = module.iam_lambda_video_processing.lambda_iam_role_to_assume_arn
   lambda_layers = [
     module.lambda_video_processing_ffmpeg_layer.version_arn
   ]
   lambda_environment = {
-    DYNAMODB_TABLE_NAME  = module.dynamodb.dynamodb_table_name
-    S3_BUCKET            = module.s3.s3_bucket_name
-    SES_SOURCE_EMAIL     = module.ses.ses_user_email
-    ENVIRONMENT          = var.environment
+    DYNAMODB_TABLE_NAME = module.dynamodb.dynamodb_table_name
+    S3_BUCKET           = module.s3.s3_bucket_name
+    SES_SOURCE_EMAIL    = module.ses.ses_user_email
+    ENVIRONMENT         = var.environment
   }
 
   depends_on = [module.iam_lambda_video_processing, module.lambda_video_processing_ffmpeg_layer]
 }
 
+resource "aws_lambda_event_source_mapping" "sqs_event_source" {
+  event_source_arn = module.sqs.sqs_queue_arn
+  function_name    = module.lambda_video_processing.lambda_arn
+  batch_size       = 5
+
+  depends_on = [module.sqs, module.lambda_video_processing]
+}
+
 module "iam_lambda_upload_video" {
-  source = "./iam"
-  role_name = "lambda_upload_video_role"
+  source    = "./iam"
+  role_name = "LambdaUploadVideoRole"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
       Action = "sts:AssumeRole",
       Effect = "Allow",
-      Sid    = "lambda_upload_video_role_sts",
+      Sid    = "LambdaUploadVideoRoleSts",
       Principal = {
         Service = "lambda.amazonaws.com"
       },
@@ -151,19 +159,19 @@ module "iam_lambda_upload_video" {
   })
   policy_statements = [
     {
-      Effect    = "Allow"
+      Effect   = "Allow"
       Resource = ["*"]
       Action   = ["s3:GetObject", "s3:PutObject", "s3:PutBucketAcl"]
     },
     {
-      Effect    = "Allow"
+      Effect   = "Allow"
       Resource = ["*"]
       Action   = ["sqs:SendMessage"]
     },
     {
-      Effect    = "Allow"
+      Effect   = "Allow"
       Resource = ["*"]
-      Action = ["dynamodb:InsertItem"]
+      Action   = ["dynamodb:InsertItem"]
     },
   ]
 
@@ -171,20 +179,20 @@ module "iam_lambda_upload_video" {
 }
 
 module "lambda_upload_video" {
-  source = "./lambda"
-  lambda_name = "lambda_upload_video"
-  lambda_output_path = "../../lambda-upload-video/build.zip"
-  lambda_runtime = "nodejs20.x"
-  lambda_handler = "dist/index.handler"
-  lambda_timeout = 900
-  lambda_memsize = 512
-  lambda_ephemeral_storage = 10240
+  source                        = "./lambda"
+  lambda_name                   = "lambda_upload_video"
+  lambda_output_path            = "../../lambda-upload-video/build.zip"
+  lambda_runtime                = "nodejs20.x"
+  lambda_handler                = "dist/index.handler"
+  lambda_timeout                = 900
+  lambda_memsize                = 512
+  lambda_ephemeral_storage      = 10240
   lambda_iam_role_to_assume_arn = module.iam_lambda_upload_video.lambda_iam_role_to_assume_arn
   lambda_environment = {
-    DYNAMODB_TABLE_NAME  = module.dynamodb.dynamodb_table_name
-    SQS_QUEUE_URL        = module.sqs.sqs_queue_url
-    INPUT_S3_BUCKET      = module.s3.s3_bucket_name
-    ENVIRONMENT          = var.environment
+    DYNAMODB_TABLE_NAME = module.dynamodb.dynamodb_table_name
+    SQS_QUEUE_URL       = module.sqs.sqs_queue_url
+    INPUT_S3_BUCKET     = module.s3.s3_bucket_name
+    ENVIRONMENT         = var.environment
   }
 
   depends_on = [module.iam_lambda_upload_video]
@@ -199,8 +207,8 @@ module "api_routes" {
 }
 
 module "lambda_upload_video_api_routes" {
-  source = "./api_gateway/routes"
-  api_id = module.api_gateway.api_id
+  source               = "./api_gateway/routes"
+  api_id               = module.api_gateway.api_id
   api_root_resource_id = module.api_gateway.api_root_resource_id
   integration = {
     http_method = "POST"
@@ -225,14 +233,14 @@ resource "aws_lambda_permission" "lambda_upload_video_api_routes_permission" {
 }
 
 module "iam_lambda_status_video_processing" {
-  source = "./iam"
-  role_name = "lambda_status_video_processing_role"
+  source    = "./iam"
+  role_name = "LambdaStatusVideoProcessingRole"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
       Action = "sts:AssumeRole",
       Effect = "Allow",
-      Sid    = "lambda_status_video_processing_role_sts",
+      Sid    = "LambdaStatusVideoProcessingRoleSts",
       Principal = {
         Service = "lambda.amazonaws.com"
       },
@@ -240,9 +248,9 @@ module "iam_lambda_status_video_processing" {
   })
   policy_statements = [
     {
-      Effect    = "Allow"
+      Effect   = "Allow"
       Resource = ["*"]
-      Action = ["dynamodb:GetItem", "dynamodb:Query"]
+      Action   = ["dynamodb:GetItem", "dynamodb:Query"]
     },
   ]
 
@@ -250,26 +258,26 @@ module "iam_lambda_status_video_processing" {
 }
 
 module "lambda_status_video_processing" {
-  source = "./lambda"
-  lambda_name = "lambda_status_video_processing"
-  lambda_output_path = "../../lambda-status-video-processing/build.zip"
-  lambda_runtime = "nodejs20.x"
-  lambda_handler = "dist/index.handler"
-  lambda_timeout = 900
-  lambda_memsize = 512
-  lambda_ephemeral_storage = 10240
+  source                        = "./lambda"
+  lambda_name                   = "lambda_status_video_processing"
+  lambda_output_path            = "../../lambda-status-video-processing/build.zip"
+  lambda_runtime                = "nodejs20.x"
+  lambda_handler                = "dist/index.handler"
+  lambda_timeout                = 900
+  lambda_memsize                = 512
+  lambda_ephemeral_storage      = 10240
   lambda_iam_role_to_assume_arn = module.iam_lambda_status_video_processing.lambda_iam_role_to_assume_arn
   lambda_environment = {
-    DYNAMODB_TABLE_NAME  = module.dynamodb.dynamodb_table_name
-    ENVIRONMENT          = var.environment
+    DYNAMODB_TABLE_NAME = module.dynamodb.dynamodb_table_name
+    ENVIRONMENT         = var.environment
   }
 
   depends_on = [module.iam_lambda_status_video_processing]
 }
 
 module "lambda_status_video_processing_api_routes" {
-  source = "./api_gateway/routes"
-  api_id = module.api_gateway.api_id
+  source               = "./api_gateway/routes"
+  api_id               = module.api_gateway.api_id
   api_root_resource_id = module.api_gateway.api_root_resource_id
   integration = {
     http_method = "GET"
