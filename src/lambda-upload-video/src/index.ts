@@ -62,7 +62,7 @@ exports.handler = async (event: any) => {
           userId,
           videoId: uploadTimestamp.toString(),
           status: VideoProcessingStatus.ENQUEUED,
-          s3ObjectKey: `input/${userId}_${uploadTimestamp}_${file.name}`,
+          s3ObjectKey: `${userId}_${uploadTimestamp}_${file.name}`,
           timestamp: uploadTimestamp,
         }
 
