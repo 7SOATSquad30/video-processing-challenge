@@ -52,13 +52,13 @@ module "api_gateway" {
 
 module "iam_lambda_video_processing" {
   source    = "./iam"
-  role_name = "lambda_video_processing_role"
+  role_name = "LambdaVideoProcessingRole"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
       Action = "sts:AssumeRole",
       Effect = "Allow",
-      Sid    = "lambda_video_processing_role_sts",
+      Sid    = "LambdaVideoProcessingRoleSts",
       Principal = {
         Service = "lambda.amazonaws.com"
       },
@@ -126,13 +126,13 @@ module "lambda_video_processing" {
 
 module "iam_lambda_upload_video" {
   source    = "./iam"
-  role_name = "lambda_upload_video_role"
+  role_name = "LambdaUploadVideoRole"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
       Action = "sts:AssumeRole",
       Effect = "Allow",
-      Sid    = "lambda_upload_video_role_sts",
+      Sid    = "LambdaUploadVideoRoleSts",
       Principal = {
         Service = "lambda.amazonaws.com"
       },
@@ -207,13 +207,13 @@ resource "aws_lambda_permission" "lambda_upload_video_api_routes_permission" {
 
 module "iam_lambda_status_video_processing" {
   source    = "./iam"
-  role_name = "lambda_status_video_processing_role"
+  role_name = "LambdaStatusVideoProcessingRole"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
       Action = "sts:AssumeRole",
       Effect = "Allow",
-      Sid    = "lambda_status_video_processing_role_sts",
+      Sid    = "LambdaStatusVideoProcessingRoleSts",
       Principal = {
         Service = "lambda.amazonaws.com"
       },
