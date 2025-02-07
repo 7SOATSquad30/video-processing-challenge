@@ -55,13 +55,10 @@ jobs:
         run: |
           terraform init
           terraform plan -out=plan_shared \
-            -var='environment=production' \          
+            -var="environment=production" \
             -var "ses_email_address=${{ secrets.SES_EMAIL_ADDRESS }}" \
             -var "ses_domain_identity_name=${{ secrets.SES_DOMAIN_IDENTITY_NAME }}"
-          terraform apply -auto-approve plan_shared \
-            -var='environment=production' \
-            -var "ses_email_address=${{ secrets.SES_EMAIL_ADDRESS }}" \
-            -var "ses_domain_identity_name=${{ secrets.SES_DOMAIN_IDENTITY_NAME }}"
+          terraform apply -auto-approve plan_shared
 
       - name: Notificar sucesso do deploy
         if: success()
