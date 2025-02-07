@@ -33,6 +33,21 @@ variable "identity_pool_name" {
   default     = "fastfood-identity-pool"
 }
 
+variable "cognito_app_client_name" {
+  app_client_name = ""
+  type        = string
+}
+
+variable "cognito_cognito_domain" {
+  cognito_domain = ""
+  type        = string
+}
+
+variable "logout_urls" {
+  app_client_name = ""
+  type        = string
+}
+
 /*
 # Lambda function ARN for the Pre Token Generation trigger
 variable "lambda_function_arn" {
