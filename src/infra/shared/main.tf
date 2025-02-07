@@ -50,6 +50,17 @@ module "api_gateway" {
   api_name = "video-upload-api"
 }
 
+module "cognito" {
+  count = var.environment == "development" ? 0 : 1
+  source = "./cognito"
+  user_pool_name = "video-processing-user-pool"
+  app_client_name = "video-processing-app-client"
+  identity_pool_name = "video-processing-identity-pool"
+  cognito_domain = "video-processing-domain"
+  callback_urls = ["https://example.com/callback"]
+  logout_urls = ["https://example.com/logout"]
+}
+
 module "iam_lambda_video_processing" {
   source = "./iam"
   role_name = "lambda_video_processing_role"
@@ -274,9 +285,15 @@ resource "aws_lambda_permission" "lambda_status_video_processing_api_routes_perm
   depends_on = [module.api_gateway, module.lambda_status_video_processing]
 }
 
+module "api_gateway_authorizer" {
+  source = "./api_gateway/authorizer"
+  api_id = module.api_gateway.api_id
+  depends_on = [module.lambda_upload_video_api_routes, module.lambda_status_video_processing_api_routes]
+}
+
 module "api_gateway_deployment" {
   source = "./api_gateway/deployment"
   api_id = module.api_gateway.api_id
 
-  depends_on = [module.lambda_upload_video_api_routes, module.lambda_status_video_processing_api_routes]
+  depends_on = [module.lambda_upload_video_api_routes, module.lambda_status_video_processing_api_routes, module.api_gateway_authorizer]
 }
