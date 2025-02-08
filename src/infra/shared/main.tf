@@ -110,6 +110,7 @@ module "lambda_video_processing" {
   lambda_timeout                = 900
   lambda_memsize                = 512
   lambda_ephemeral_storage      = 10240
+  lambda_arch                   = ["x86_64"]
   lambda_iam_role_to_assume_arn = module.iam_lambda_video_processing.lambda_iam_role_to_assume_arn
   lambda_layers = [
     module.lambda_video_processing_ffmpeg_layer.version_arn

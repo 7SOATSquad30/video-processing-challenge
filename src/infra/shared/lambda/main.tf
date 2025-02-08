@@ -5,7 +5,7 @@ resource "aws_lambda_function" "lambda" {
   role             = var.lambda_iam_role_to_assume_arn
   handler          = var.lambda_handler
   runtime          = var.lambda_runtime
-  architectures    = ["arm64"]
+  architectures    = var.lambda_arch
   timeout          = var.lambda_timeout
   memory_size      = var.lambda_memsize
   layers           = var.lambda_layers
