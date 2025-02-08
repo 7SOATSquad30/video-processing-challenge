@@ -19,3 +19,11 @@ resource "aws_api_gateway_resource" "resource_3" {
   
   depends_on = [aws_api_gateway_resource.resource_2]
 }
+
+resource "aws_api_gateway_resource" "resource_4" {
+  rest_api_id = var.api_id
+  parent_id   = aws_api_gateway_resource.resource_2.id
+  path_part   = "signedUploadUrl"
+  
+  depends_on = [aws_api_gateway_resource.resource_2]
+}

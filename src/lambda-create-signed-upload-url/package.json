@@ -1,12 +1,12 @@
 {
-  "name": "lambda-upload-video",
+  "name": "lambda-create-signed-upload-url",
   "version": "1.0.0",
   "description": "",
   "main": "lambda.js",
   "scripts": {
     "dev": "tsnd ./src/index.ts",
     "build": "tsc && zip -r -4 build.zip . -i 'dist/*' -i 'node_modules/*' -i 'package.json'",
-    "upload": "aws lambda update-function-code --endpoint-url http://localhost:4566 --function-name lambda-upload-video --zip-file fileb://build.zip",
+    "upload": "aws lambda update-function-code --endpoint-url http://localhost:4566 --function-name lambda-create-signed-upload-url --zip-file fileb://build.zip",
     "build:upload": "npm run build && npm run upload",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,10 +14,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.741.0",
     "@aws-sdk/client-s3": "^3.741.0",
-    "@aws-sdk/client-sqs": "^3.741.0",
-    "@aws-sdk/lib-dynamodb": "^3.741.0"
+    "@aws-sdk/s3-request-presigner": "^3.744.0"
   },
   "devDependencies": {
     "@types/node": "^22.12.0",
