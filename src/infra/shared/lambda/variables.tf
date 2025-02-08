@@ -43,3 +43,8 @@ variable "lambda_ephemeral_storage" {
   type        = number
   default     = 32
 }
+
+variable "lambda_arch" {
+  type = list(string)
+  default = ["arm64"]
+}
