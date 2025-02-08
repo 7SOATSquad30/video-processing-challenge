@@ -4,7 +4,6 @@ import { saveVideo } from "./video.repository";
 import { notifyNewVideoToBeProcessed } from "./messaging.service";
 
 import busboy from 'busboy';
-import { PassThrough } from 'node:stream';
 
 exports.handler = async (event: any) => {
     try {
@@ -14,7 +13,6 @@ exports.handler = async (event: any) => {
         if (!userId) {
           return {
             statusCode: 400,
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ error: 'Field usedId is required.' })
           };
         }
@@ -23,7 +21,6 @@ exports.handler = async (event: any) => {
         if (!contentType?.startsWith("multipart/form-data")) {
           return {
             statusCode: 400,
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: "Invalid Content-Type" })
           };
         }
@@ -35,53 +32,56 @@ exports.handler = async (event: any) => {
 
         event.headers['content-type'] = contentType;
         const bb = busboy({ headers: event.headers });
-        const fileDataStream = new PassThrough();
-        let fileName: string;
 
-        console.log('Receiving file...');
-        const promise = new Promise((resolve: any, reject: any) => {
-            bb.on("file", (_fieldName: any, file: any, fileParams: any, _encoding: any, _mimetype: any) => {
-              fileName = fileParams.filename;
-              file.pipe(fileDataStream);
-              file.on("end", () => console.log(`Finished receiving file: ${fileParams.filename}`));
-            });
-            bb.on("error", (err: any) => reject(err));
-            bb.on("finish", () => resolve());
+        let fileName: string;
+        let fileMimeType: string;
+        const chunks: Buffer[] = [];
+
+        const promise = new Promise((resolve, reject) => {
+          bb.on("file", (_fieldName: string, file: NodeJS.ReadableStream, fileParams: Record<string, unknown>, _encoding: string, mimetype: string) => {
+            fileName = <string> fileParams.filename;
+            fileMimeType = mimetype;
+
+            file.on("data", (chunk: Buffer<ArrayBufferLike>) => chunks.push(chunk));
+            file.on("end", () => console.log(`Finished receiving file: ${fileParams.filename}`));
+          });
+
+          bb.on("error", reject);
+          bb.on("finish", resolve);
         });
 
         bb.end(body);
         await promise;
 
-        const file: File = {
-          name: fileName!,
-          data: fileDataStream,
-        }
+        const fileBuffer = Buffer.concat(chunks);
 
         const uploadTimestamp = new Date().getTime();
+        const file: File = {
+          name: fileName!,
+          contentType: fileMimeType!,
+          data: fileBuffer,
+        }
         const video: Video = {
           userId,
           videoId: uploadTimestamp.toString(),
           status: VideoProcessingStatus.ENQUEUED,
-          s3ObjectKey: `${userId}_${uploadTimestamp}_${file.name}`,
+          s3ObjectKey: `${userId}_${uploadTimestamp}_${fileName!}`,
           timestamp: uploadTimestamp,
-        }
+        };
 
         await saveFile(file, video.s3ObjectKey);
         await saveVideo(video);
         await notifyNewVideoToBeProcessed(video);
 
-        const message = `File ${file.name} was uploaded for user ${userId}.`;
-        console.log(message);
-
         return {
-            statusCode: 200,
-            body: JSON.stringify({ message })
+          statusCode: 200,
+          body: JSON.stringify({ message: `File ${fileName!} was uploaded for user ${userId}.` })
         };
     } catch (error: any) {
-      console.error('Error', error);
-      return {
+        console.error('Error', error);
+        return {
           statusCode: 500,
-          body: JSON.stringify({ message: "Erro ao processar upload do video.", error: error.message })
-      };
+          body: JSON.stringify({ message: "Error processing video upload.", error: error.message })
+        };
     }
 };
