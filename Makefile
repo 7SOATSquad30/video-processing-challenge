@@ -11,7 +11,8 @@ build:
 	make -C ./src/lambda-video-processing build-ffmpeg-layer && \
 	make -C ./src/lambda-video-processing build && \
 	make -C ./src/lambda-upload-video build && \
-	make -C ./src/lambda-status-video-processing build
+	make -C ./src/lambda-status-video-processing build && \
+	make -C ./src/lambda-create-signed-upload-url build
 
 deploy/dev/with-docker:
 	docker exec builder /bin/bash -c "make deploy/dev"

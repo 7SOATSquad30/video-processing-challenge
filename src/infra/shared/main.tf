@@ -144,6 +144,83 @@ resource "aws_lambda_event_source_mapping" "sqs_event_source" {
   depends_on = [module.sqs, module.lambda_video_processing]
 }
 
+module "api_routes" {
+  source = "./api_gateway/route_resources"
+  api_id = module.api_gateway.api_id
+  api_root_resource_id = module.api_gateway.api_root_resource_id
+
+  depends_on = [module.api_gateway]
+}
+
+module "iam_lambda_create_signed_upload_url" {
+  source    = "./iam"
+  role_name = "LambdaCreateSignedUploadUrlRole"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
+      Sid    = "LambdaCreateSignedUploadUrlRoleSts",
+      Principal = {
+        Service = "lambda.amazonaws.com"
+      },
+    }],
+  })
+  policy_statements = [
+    {
+      Effect   = "Allow"
+      Resource = ["*"]
+      Action   = ["s3:GetObject", "s3:PutObject"]
+    }
+  ]
+
+  depends_on = [module.dynamodb, module.s3]
+}
+
+module "lambda_create_signed_upload_url" {
+  source                        = "./lambda"
+  lambda_name                   = "lambda_create_signed_upload_url"
+  lambda_output_path            = "../../lambda-create-signed-upload-url/build.zip"
+  lambda_runtime                = "nodejs20.x"
+  lambda_handler                = "dist/index.handler"
+  lambda_timeout                = 900
+  lambda_memsize                = 512
+  lambda_ephemeral_storage      = 10240
+  lambda_iam_role_to_assume_arn = module.iam_lambda_create_signed_upload_url.lambda_iam_role_to_assume_arn
+  lambda_environment = {
+    INPUT_S3_BUCKET     = module.s3.s3_bucket_name
+    ENVIRONMENT         = var.environment
+  }
+
+  depends_on = [module.iam_lambda_create_signed_upload_url]
+}
+
+module "lambda_create_signed_upload_url_api_routes" {
+  source               = "./api_gateway/routes"
+  api_id               = module.api_gateway.api_id
+  api_root_resource_id = module.api_gateway.api_root_resource_id
+  integration = {
+    http_method = "POST"
+    resource_id = module.api_routes.upload_url_resource_id
+    integration_type = "AWS_PROXY"
+    integration_http_method = "POST"
+    integration_uri = module.lambda_create_signed_upload_url.lambda_invoke_arn
+    passthrough_behavior = "WHEN_NO_MATCH"
+    content_handling = "CONVERT_TO_TEXT"
+  }
+
+  depends_on = [module.api_gateway, module.lambda_create_signed_upload_url, module.api_routes]
+}
+resource "aws_lambda_permission" "lambda_create_signed_upload_url_api_routes_permission" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = module.lambda_create_signed_upload_url.lambda_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${module.api_gateway.api_execution_arn}/*/*"
+
+  depends_on = [module.api_gateway, module.lambda_create_signed_upload_url]
+}
+
 module "iam_lambda_upload_video" {
   source    = "./iam"
   role_name = "LambdaUploadVideoRole"
@@ -199,21 +276,13 @@ module "lambda_upload_video" {
   depends_on = [module.iam_lambda_upload_video]
 }
 
-module "api_routes" {
-  source = "./api_gateway/route_resources"
-  api_id = module.api_gateway.api_id
-  api_root_resource_id = module.api_gateway.api_root_resource_id
-
-  depends_on = [module.api_gateway]
-}
-
 module "lambda_upload_video_api_routes" {
   source               = "./api_gateway/routes"
   api_id               = module.api_gateway.api_id
   api_root_resource_id = module.api_gateway.api_root_resource_id
   integration = {
     http_method = "POST"
-    resource_id = module.api_routes.resource_id
+    resource_id = module.api_routes.video_resource_id
     integration_type = "AWS_PROXY"
     integration_http_method = "POST"
     integration_uri = module.lambda_upload_video.lambda_invoke_arn
@@ -282,7 +351,7 @@ module "lambda_status_video_processing_api_routes" {
   api_root_resource_id = module.api_gateway.api_root_resource_id
   integration = {
     http_method = "GET"
-    resource_id = module.api_routes.resource_id
+    resource_id = module.api_routes.video_resource_id
     integration_type = "AWS_PROXY"
     integration_http_method = "POST"
     integration_uri = module.lambda_status_video_processing.lambda_invoke_arn
