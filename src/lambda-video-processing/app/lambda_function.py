@@ -54,9 +54,11 @@ def lambda_handler(event, context):
 
             # Gera uma url pré-assinada para download do arquivo ZIP
             download_url = generate_presigned_url(bucket_name, upload_key)
+            success_message = f"O processamento do vídeo {video_id} foi concluído com sucesso. " \
+                                f"Baixe o arquivo ZIP com os frames processados: {download_url}"
 
             # Envia e-mail de notificação para o cliente
-            send_email_notification(source_email, client_email, f"URL Pre-assinada: {download_url}")
+            send_email_notification(source_email, client_email, success_message)
 
             # Atualiza status para "SUCESSO"
             update_status_in_dynamodb(table_name, user_id, video_id, 'SUCESSO')

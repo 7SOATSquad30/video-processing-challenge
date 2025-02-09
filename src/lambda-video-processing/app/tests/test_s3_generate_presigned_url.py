@@ -12,7 +12,7 @@ class TestGeneratePresignedUrl(unittest.TestCase):
         # Configuração do ambiente de teste
         bucket_name = 'test-bucket'
         object_name = 'test-file.txt'
-        expiration = 3600
+        expiration = 604800
 
         # Cria um cliente S3 mockado
         s3_client = boto3.client('s3', region_name='us-east-1')
@@ -32,7 +32,7 @@ class TestGeneratePresignedUrl(unittest.TestCase):
         # Configuração do ambiente de teste
         bucket_name = 'test-bucket'
         object_name = 'test-file.txt'
-        expiration = 3600
+        expiration = 604800
 
         # Simula uma exceção de credenciais inválidas
         mock_boto3_client.return_value.generate_presigned_url.side_effect = Exception("Credenciais inválidas")

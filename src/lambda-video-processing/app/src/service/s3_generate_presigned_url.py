@@ -1,7 +1,7 @@
 import boto3
 from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 
-def generate_presigned_url(bucket_name, object_name, expiration=3600):
+def generate_presigned_url(bucket_name, object_name, expiration=604800):
     """
     Gera uma URL pré-assinada para um objeto no Amazon S3.
 
