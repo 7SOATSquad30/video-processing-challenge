@@ -21,3 +21,7 @@ variable "integration" {
 variable "cognito_authorizer_id" {
   type = string
 }
+
+variable "cognito_authorizer" {
+  type = string
+}
