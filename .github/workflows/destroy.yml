@@ -34,33 +34,16 @@ jobs:
           key: terraform-${{ runner.os }}-${{ hashFiles('src/infra/**/*.tf') }}
           restore-keys: terraform-${{ runner.os }}-
 
-      - name: Destroy - Infra basica terraform
-        working-directory: ./src/infra/
-        run: |
-            terraform -chdir='./tfstate' init
-            terraform -chdir='./tfstate' destroy -auto-approve plan_tfstate
-
       - name: Destroy - Infra compartilhada
-        working-directory: ./src/infra/
+        working-directory: ./src/infra/shared
         run: |
-            terraform -chdir='./shared' init
-            terraform -chdir='./shared' destroy -auto-approve plan_shared \
-                -var "ses_email_address=${{ secrets.SES_EMAIL_ADDRESS }}" \
-                -var "ses_domain_identity_name=${{ secrets.SES_DOMAIN_IDENTITY_NAME }}"
-
-      #- name: Baixar e enviar FFmpeg para o S3
-      #  run: make -C ./src/lambda-video-processing build-ffmpeg-layer
-
-      - name: Destroy - Lambda video-processing
-        working-directory: ./src/infra/
-        run: |
-            terraform -chdir='./lambda-video-processing' init
-            terraform -chdir='./lambda-video-processing' destroy -auto-approve plan_lambda-video-processing
+            terraform init
+            terraform destroy -auto-approve
 
       - name: Notificar sucesso do destroy
         if: success()
-        run: echo "Destroy concluído com sucesso para LambdaProcessadorVideos em $AWS_REGION!"
+        run: echo "Destroy concluído com sucesso para infra em $AWS_REGION!"
 
       - name: Notificar falha do destroy
         if: failure()
-        run: echo "Falha no destroy da LambdaProcessadorVideos. Verifique os logs."
+        run: echo "Falha no destroy da infra. Verifique os logs."
