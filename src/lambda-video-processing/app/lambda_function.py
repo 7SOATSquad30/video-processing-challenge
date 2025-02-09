@@ -21,7 +21,7 @@ def lambda_handler(event, context):
         table_name = get_env_variable('DYNAMODB_TABLE_NAME')
         bucket_name  = get_env_variable('S3_BUCKET')
         processed_files = []
-        source_email = get_env_variable('SOURCE_EMAIL')
+        source_email = get_env_variable('SES_SOURCE_EMAIL')
 
         for record in event['Records']:
             message_body = json.loads(record['body'])
@@ -57,7 +57,7 @@ def lambda_handler(event, context):
             processed_files.append(upload_key)
         
         if processed_files:
-            send_email_notification(client_email, f"Processamento concluido: {processed_files}")
+            send_email_notification(source_email, client_email, f"Processamento concluido: {processed_files}")
             return {
                 'statusCode': 200,
                 'body': json.dumps({'message': 'Processamento concluido', 'files': processed_files})
