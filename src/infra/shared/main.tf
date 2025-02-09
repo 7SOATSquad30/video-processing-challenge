@@ -50,6 +50,17 @@ module "api_gateway" {
   api_name = "video-upload-api"
 }
 
+module "cognito" {
+  count = var.environment == "development" ? 0 : 1
+  source = "./cognito"
+  user_pool_name = "video-processing-user-pool"
+  app_client_name = "video-processing-app-client"
+  identity_pool_name = "video-processing-identity-pool"
+  cognito_domain = "video-processing-domain"
+  callback_urls = ["https://example.com/callback"]
+  logout_urls = ["https://example.com/logout"]
+}
+
 module "iam_lambda_video_processing" {
   source    = "./iam"
   role_name = "LambdaVideoProcessingRole"
@@ -141,6 +152,14 @@ module "api_routes" {
   depends_on = [module.api_gateway]
 }
 
+module "api_gateway_authorizer" {
+  count = var.environment == "development" ? 0 : 1
+  source = "./api_gateway/authorizer"
+  api_id = module.api_gateway.api_id
+  cognito_user_pool_arn = var.environment == "production" ? module.cognito[0].user_pool_arn : ""
+  depends_on = [module.api_gateway, module.cognito]
+}
+
 module "iam_lambda_create_signed_upload_url" {
   source    = "./iam"
   role_name = "LambdaCreateSignedUploadUrlRole"
@@ -188,6 +207,8 @@ module "lambda_create_signed_upload_url_api_routes" {
   source               = "./api_gateway/routes"
   api_id               = module.api_gateway.api_id
   api_root_resource_id = module.api_gateway.api_root_resource_id
+  cognito_authorizer = var.environment == "production" ? "COGNITO_USER_POOLS" : "NONE"
+  cognito_authorizer_id = var.environment == "production" ? module.api_gateway_authorizer[0].cognito_authorizer_id : ""
   integration = {
     http_method = "POST"
     resource_id = module.api_routes.upload_url_resource_id
@@ -198,7 +219,7 @@ module "lambda_create_signed_upload_url_api_routes" {
     content_handling = "CONVERT_TO_TEXT"
   }
 
-  depends_on = [module.api_gateway, module.lambda_create_signed_upload_url, module.api_routes]
+  depends_on = [module.api_gateway, module.lambda_create_signed_upload_url, module.api_routes, module.api_gateway_authorizer]
 }
 resource "aws_lambda_permission" "lambda_create_signed_upload_url_api_routes_permission" {
   statement_id  = "AllowAPIGatewayInvoke"
@@ -269,6 +290,8 @@ module "lambda_upload_video_api_routes" {
   source               = "./api_gateway/routes"
   api_id               = module.api_gateway.api_id
   api_root_resource_id = module.api_gateway.api_root_resource_id
+  cognito_authorizer = var.environment == "production" ? "COGNITO_USER_POOLS" : "NONE"
+  cognito_authorizer_id = var.environment == "production" ? module.api_gateway_authorizer[0].cognito_authorizer_id : ""
   integration = {
     http_method = "POST"
     resource_id = module.api_routes.video_resource_id
@@ -279,7 +302,7 @@ module "lambda_upload_video_api_routes" {
     content_handling = "CONVERT_TO_TEXT"
   }
 
-  depends_on = [module.api_gateway, module.lambda_upload_video, module.api_routes]
+  depends_on = [module.api_gateway, module.lambda_upload_video, module.api_routes, module.api_gateway_authorizer]
 }
 resource "aws_lambda_permission" "lambda_upload_video_api_routes_permission" {
   statement_id  = "AllowAPIGatewayInvoke"
@@ -338,6 +361,8 @@ module "lambda_status_video_processing_api_routes" {
   source               = "./api_gateway/routes"
   api_id               = module.api_gateway.api_id
   api_root_resource_id = module.api_gateway.api_root_resource_id
+  cognito_authorizer = var.environment == "production" ? "COGNITO_USER_POOLS" : "NONE"
+  cognito_authorizer_id = var.environment == "production" ? module.api_gateway_authorizer[0].cognito_authorizer_id : ""
   integration = {
     http_method = "GET"
     resource_id = module.api_routes.video_resource_id
@@ -348,7 +373,7 @@ module "lambda_status_video_processing_api_routes" {
     content_handling = "CONVERT_TO_TEXT"
   }
 
-  depends_on = [module.api_gateway, module.lambda_status_video_processing, module.api_routes]
+  depends_on = [module.api_gateway, module.lambda_status_video_processing, module.api_routes, module.api_gateway_authorizer]
 }
 resource "aws_lambda_permission" "lambda_status_video_processing_api_routes_permission" {
   statement_id  = "AllowAPIGatewayInvoke"
@@ -364,5 +389,5 @@ module "api_gateway_deployment" {
   source = "./api_gateway/deployment"
   api_id = module.api_gateway.api_id
 
-  depends_on = [module.lambda_upload_video_api_routes, module.lambda_status_video_processing_api_routes]
+  depends_on = [module.lambda_upload_video_api_routes, module.lambda_status_video_processing_api_routes, module.api_gateway_authorizer]
 }

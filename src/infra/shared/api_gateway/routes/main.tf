@@ -2,7 +2,8 @@ resource "aws_api_gateway_method" "method" {
   rest_api_id   = var.api_id
   resource_id   = var.integration.resource_id
   http_method   = var.integration.http_method
-  authorization = "NONE"
+  authorization = var.cognito_authorizer
+  authorizer_id = var.cognito_authorizer_id
 }
 
 resource "aws_api_gateway_integration" "integrations" {
