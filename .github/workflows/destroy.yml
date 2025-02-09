@@ -38,7 +38,10 @@ jobs:
         working-directory: ./src/infra/shared
         run: |
             terraform init
-            terraform destroy -auto-approve
+            terraform destroy -auto-approve \
+              -var="environment=production" \
+              -var "ses_email_address=${{ secrets.SES_EMAIL_ADDRESS }}" \
+              -var "ses_domain_identity_name=${{ secrets.SES_DOMAIN_IDENTITY_NAME }}"
 
       - name: Notificar sucesso do destroy
         if: success()
