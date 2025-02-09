@@ -61,7 +61,7 @@ jobs:
       - name: Configurar Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.13'
+          python-version: '3.9'  # Altere para a versão do Python que você usa
 
       - name: Instalar dependências do Python
         run: |
@@ -71,11 +71,13 @@ jobs:
 
       - name: Rodar testes unitários com coverage
         run: |
-          cd src/lambda-video-processing/app
+          export PYTHONPATH="${PYTHONPATH}:$(pwd)/src/lambda-video-processing/app"
+          cd src/lambda-video-processing/app/
           pytest tests/ -v --cov=./ --cov-report=term
 
       - name: Calcular e exibir porcentagem de cobertura
         run: |
+          export PYTHONPATH="${PYTHONPATH}:$(pwd)/src/lambda-video-processing/app"
           cd src/lambda-video-processing/app/
           coverage report
           echo "Porcentagem de cobertura: $(coverage report | grep TOTAL | awk '{print $4}')"
