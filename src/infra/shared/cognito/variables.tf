@@ -2,7 +2,7 @@
 variable "user_pool_name" {
   description = "Cognito User Pool Name"
   type        = string
-  default     = "fastfood-user-pool"
+  default     = "video-challenging-user-pool"
 }
 
 # Cognito User Pool ARN
@@ -15,14 +15,14 @@ variable "user_pool_name" {
 variable "user_pool_domain_prefix" {
   description = "Cognito domain prefix"
   type        = string
-  default     = "fastfood-domain"
+  default     = "video-challenging-domain"
 }
 
 # Cognito Cliente name
 variable "client_name" {
   description = "Cognito client name"
   type        = string
-  default     = "fastfood-client"
+  default     = "video-challenging-client"
 }
 
 # Cognito Callback URLs
@@ -36,7 +36,7 @@ variable "callback_urls" {
 variable "identity_pool_name" {
   description = "Identity Pool Name"
   type        = string
-  default     = "fastfood-identity-pool"
+  default     = "video-challenging-identity-pool"
 }
 
 variable "app_client_name" {
