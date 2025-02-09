@@ -6,10 +6,10 @@ variable "user_pool_name" {
 }
 
 # Cognito User Pool ARN
-variable "user_pool_arn" {
+/*variable "user_pool_arn" {
   description = "Cognito User Pool ARN"
   type        = string
-}
+}*/
 
 # Cognito User Pool Domain Prefix
 variable "user_pool_domain_prefix" {

@@ -47,7 +47,6 @@ resource "aws_api_gateway_authorizer" "cognito_authorizer" {
   type          = "COGNITO_USER_POOLS"
   provider_arns = [var.cognito_user_pool_arn]
   identity_source = "method.request.header.Authorization"
-  depends_on      = [aws_api_gateway_rest_api.api_gateway]
 }
 
 resource "aws_api_gateway_method" "methods" {

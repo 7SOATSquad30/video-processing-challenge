@@ -306,7 +306,7 @@ module "api_gateway_authorizer" {
   count = var.environment == "development" ? 0 : 1
   source = "./api_gateway/authorizer"
   api_id = module.api_gateway.api_id
-  cognito_user_pool_arn = module.cognito.user_pool_arn
+  cognito_user_pool_arn = module.cognito[0].user_pool_arn
   depends_on = [module.lambda_upload_video_api_routes, module.lambda_status_video_processing_api_routes, module.cognito]
 }
 
