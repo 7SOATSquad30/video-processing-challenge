@@ -305,7 +305,8 @@ resource "aws_lambda_permission" "lambda_status_video_processing_api_routes_perm
 module "api_gateway_authorizer" {
   source = "./api_gateway/authorizer"
   api_id = module.api_gateway.api_id
-  depends_on = [module.lambda_upload_video_api_routes, module.lambda_status_video_processing_api_routes]
+  cognito_user_pool_arn = module.cognito.user_pool_arn
+  depends_on = [module.lambda_upload_video_api_routes, module.lambda_status_video_processing_api_routes, module.cognito]
 }
 
 module "api_gateway_deployment" {

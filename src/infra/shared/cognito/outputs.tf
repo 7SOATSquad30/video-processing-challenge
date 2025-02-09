@@ -4,6 +4,12 @@ output "user_pool_id" {
   value       = aws_cognito_user_pool.user_pool.id
 }
 
+# ARN User Pool
+output "user_pool_arn" {
+  description = "ARN do User Pool"
+  value       = aws_cognito_user_pool.user_pool.arn
+}
+
 # Cognito Client ID
 output "client_id" {
   description = "ID do Client"
