@@ -7,6 +7,7 @@ from src.service.s3_upload_file import upload_file_to_s3
 from src.service.ffmpeg_extract_frames import extract_frames_with_ffmpeg
 from src.service.create_zip_from_folder import create_zip_from_folder
 from src.service.send_email_notification import send_email_notification
+from src.service.s3_generate_presigned_url import generate_presigned_url
 from src.config.config import logger
 from src.config.config import get_env_variable
 
@@ -20,7 +21,6 @@ def lambda_handler(event, context):
     try:
         table_name = get_env_variable('DYNAMODB_TABLE_NAME')
         bucket_name  = get_env_variable('S3_BUCKET')
-        processed_files = []
         source_email = get_env_variable('SES_SOURCE_EMAIL')
 
         for record in event['Records']:
@@ -30,7 +30,7 @@ def lambda_handler(event, context):
             video_id = message_body['videoId']
             video_path = message_body['s3ObjectKey']
             # client_email = message_body['client_email']
-            client_email = 'test1790528@test139785.com'
+            client_email = 'otavio.sto@gmail.com'
             download_path = os.path.join('/tmp', os.path.basename(video_path))
             output_frames_dir = os.path.join('/tmp', 'frames')
             zip_file_path = os.path.join('/tmp', f'{video_path}.zip')
@@ -52,16 +52,19 @@ def lambda_handler(event, context):
             upload_file_to_s3(zip_file_path, bucket_name, upload_key)
             logger.info(f"Arquivo ZIP carregado com sucesso para: {bucket_name}/{upload_key}")
 
+            # Gera uma url pré-assinada para download do arquivo ZIP
+            download_url = generate_presigned_url(bucket_name, upload_key)
+
+            # Envia e-mail de notificação para o cliente
+            send_email_notification(source_email, client_email, f"URL Pre-assinada: {download_url}")
+
             # Atualiza status para "SUCESSO"
             update_status_in_dynamodb(table_name, user_id, video_id, 'SUCESSO')
-            processed_files.append(upload_key)
-            send_email_notification(source_email, client_email, f"Processamento concluido: {processed_files}")
-        
-        if processed_files:
-            return {
-                'statusCode': 200,
-                'body': json.dumps({'message': 'Processamento concluido', 'files': processed_files})
-            }
+
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'message': 'Processamento concluido'})
+        }
     
     except KeyError as e:
         error_message = f"Erro: Chave ausente no evento - {str(e)}"
