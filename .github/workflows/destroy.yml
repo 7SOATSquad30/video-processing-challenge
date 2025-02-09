@@ -1,0 +1,49 @@
+name: Destroy
+
+on:
+  workflow_dispatch:
+
+env:
+    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    AWS_REGION: us-east-1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+  
+      - name: Configurar credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+            aws-region: ${{ env.AWS_REGION }}
+
+      - name: Instalar dependências necessárias
+        run: sudo apt-get update && sudo apt-get install -y xz-utils zip
+
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Cache do Terraform
+        uses: actions/cache@v3
+        with:
+          path: ~/.terraform.d
+          key: terraform-${{ runner.os }}-${{ hashFiles('src/infra/**/*.tf') }}
+          restore-keys: terraform-${{ runner.os }}-
+
+      - name: Destroy - Infra compartilhada
+        working-directory: ./src/infra/shared
+        run: |
+            terraform init
+            terraform destroy -auto-approve
+
+      - name: Notificar sucesso do destroy
+        if: success()
+        run: echo "Destroy concluído com sucesso para infra em $AWS_REGION!"
+
+      - name: Notificar falha do destroy
+        if: failure()
+        run: echo "Falha no destroy da infra. Verifique os logs."
