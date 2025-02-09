@@ -5,6 +5,12 @@ variable "user_pool_name" {
   default     = "fastfood-user-pool"
 }
 
+# Cognito User Pool ARN
+variable "user_pool_arn" {
+  description = "Cognito User Pool ARN"
+  type        = string
+}
+
 # Cognito User Pool Domain Prefix
 variable "user_pool_domain_prefix" {
   description = "Cognito domain prefix"
@@ -33,16 +39,16 @@ variable "identity_pool_name" {
   default     = "fastfood-identity-pool"
 }
 
-variable "cognito_app_client_name" {
+variable "app_client_name" {
   type        = string
 }
 
-variable "cognito_cognito_domain" {
+variable "cognito_domain" {
   type        = string
 }
 
 variable "logout_urls" {
-  type        = string
+  type        = list(string)
 }
 
 /*
@@ -52,10 +58,10 @@ variable "lambda_function_arn" {
   type        = string
 }*/
 
-variable "environment" {
+/*variable "environment" {
   description = "The environment"
   type        = string
-}
+}*/
 
 variable "user_email" {
   default = "user.test@hotmail.com"

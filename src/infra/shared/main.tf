@@ -303,6 +303,7 @@ resource "aws_lambda_permission" "lambda_status_video_processing_api_routes_perm
 }
 
 module "api_gateway_authorizer" {
+  count = var.environment == "development" ? 0 : 1
   source = "./api_gateway/authorizer"
   api_id = module.api_gateway.api_id
   cognito_user_pool_arn = module.cognito.user_pool_arn

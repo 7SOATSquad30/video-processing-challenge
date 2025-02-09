@@ -27,3 +27,9 @@ output "user_pool_domain" {
   description = "Cognito User Pool Domain"
   value       = aws_cognito_user_pool_domain.user_pool_domain.domain
 }
+
+# Cognito Domain
+output "cognito_domain" {
+  description = "Cognito Domain"
+  value       = aws_cognito_user_pool_domain.user_pool_domain.domain
+}
