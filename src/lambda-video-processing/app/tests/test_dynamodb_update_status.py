@@ -2,7 +2,7 @@ import boto3
 import unittest
 from unittest.mock import patch
 from src.service.dynamodb_update_status import update_status_in_dynamodb
-from moto import mock_aws
+from moto import mock_aws  # Importação correta do mock
 
 
 # Teste unitário
