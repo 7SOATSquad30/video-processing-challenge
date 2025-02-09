@@ -2,7 +2,7 @@ import boto3
 import unittest
 from unittest.mock import patch
 from src.service.dynamodb_update_status import update_status_in_dynamodb
-from moto import mock_aws  # Importação correta do mock
+from moto import mock_aws
 
 
 # Teste unitário
@@ -35,7 +35,7 @@ class TestUpdateStatusInDynamoDB(unittest.TestCase):
             Item={
                 'user_id': {'S': self.user_id},
                 'video_id': {'S': self.video_id},
-                'process_status': {'S': 'pending'}
+                'processing_status': {'S': 'pending'}  # Atributo corrigido para "processing_status"
             }
         )
 
@@ -56,7 +56,7 @@ class TestUpdateStatusInDynamoDB(unittest.TestCase):
                 'video_id': {'S': self.video_id}
             }
         )
-        self.assertEqual(response['Item']['process_status']['S'], new_status)
+        self.assertEqual(response['Item']['processing_status']['S'], new_status)
 
         # Verifica se as mensagens de log foram registradas corretamente
         mock_logger_info.assert_any_call(f"Atualizando status para '{new_status}' no DynamoDB para {self.user_id}/{self.video_id}")
