@@ -55,9 +55,9 @@ def lambda_handler(event, context):
             # Atualiza status para "SUCESSO"
             update_status_in_dynamodb(table_name, user_id, video_id, 'SUCESSO')
             processed_files.append(upload_key)
+            send_email_notification(source_email, client_email, f"Processamento concluido: {processed_files}")
         
         if processed_files:
-            send_email_notification(source_email, client_email, f"Processamento concluido: {processed_files}")
             return {
                 'statusCode': 200,
                 'body': json.dumps({'message': 'Processamento concluido', 'files': processed_files})
@@ -81,5 +81,5 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 500,
-        'body': json.dumps('Erro interno no processamento')
+        'body': json.dumps(error_message)
     }
