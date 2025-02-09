@@ -4,7 +4,7 @@ resource "aws_api_gateway_method" "method" {
   http_method   = var.integration.http_method
   # authorization
   authorization = "COGNITO_USER_POOLS"
-  authorization_id = var.cognito_authorizer_id
+  authorizer_id = var.cognito_authorizer_id
 }
 
 resource "aws_api_gateway_integration" "integrations" {
