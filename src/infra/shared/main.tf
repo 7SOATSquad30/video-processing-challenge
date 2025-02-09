@@ -156,7 +156,7 @@ module "api_gateway_authorizer" {
   count = var.environment == "development" ? 0 : 1
   source = "./api_gateway/authorizer"
   api_id = module.api_gateway.api_id
-  cognito_user_pool_arn = var.environment == "production" ? module.cognito[0].user_pool_arn : ""
+  cognito_user_pool_arn = var.environment == "production" ? module.cognito.user_pool_arn : ""
   depends_on = [module.api_gateway, module.cognito]
 }
 
@@ -208,7 +208,7 @@ module "lambda_create_signed_upload_url_api_routes" {
   api_id               = module.api_gateway.api_id
   api_root_resource_id = module.api_gateway.api_root_resource_id
   cognito_authorizer = var.environment == "production" ? "COGNITO_USER_POOLS" : "NONE"
-  cognito_authorizer_id = var.environment == "production" ? module.cognito[0].cognito_authorizer_id : ""
+  cognito_authorizer_id = var.environment == "production" ? module.cognito.cognito_authorizer_id : ""
   integration = {
     http_method = "POST"
     resource_id = module.api_routes.upload_url_resource_id
@@ -291,7 +291,7 @@ module "lambda_upload_video_api_routes" {
   api_id               = module.api_gateway.api_id
   api_root_resource_id = module.api_gateway.api_root_resource_id
   cognito_authorizer = var.environment == "production" ? "COGNITO_USER_POOLS" : "NONE"
-  cognito_authorizer_id = var.environment == "production" ? module.cognito[0].cognito_authorizer_id : ""
+  cognito_authorizer_id = var.environment == "production" ? module.cognito.cognito_authorizer_id : ""
   integration = {
     http_method = "POST"
     resource_id = module.api_routes.video_resource_id
@@ -362,7 +362,7 @@ module "lambda_status_video_processing_api_routes" {
   api_id               = module.api_gateway.api_id
   api_root_resource_id = module.api_gateway.api_root_resource_id
   cognito_authorizer = var.environment == "production" ? "COGNITO_USER_POOLS" : "NONE"
-  cognito_authorizer_id = var.environment == "production" ? module.cognito[0].cognito_authorizer_id : ""
+  cognito_authorizer_id = var.environment == "production" ? module.cognito.cognito_authorizer_id : ""
   integration = {
     http_method = "GET"
     resource_id = module.api_routes.video_resource_id
