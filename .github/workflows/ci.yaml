@@ -50,3 +50,32 @@ jobs:
 
       - name: Deploy to localstack
         run: make deploy/dev/with-docker
+
+  unit-tests-python:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'  # Altere para a versão do Python que você usa
+
+      - name: Instalar dependências do Python
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r src/lambda-video-processing/app/requirements.txt
+          pip install pytest pytest-cov  # Instala o pytest e o pytest-cov
+
+      - name: Rodar testes unitários com coverage
+        run: |
+          cd src/lambda-video-processing/app/
+          pytest tests/ -v --cov=./ --cov-report=term
+
+      - name: Calcular e exibir porcentagem de cobertura
+        run: |
+          cd src/lambda-video-processing/app/
+          coverage report
+          echo "Porcentagem de cobertura: $(coverage report | grep TOTAL | awk '{print $4}')"
