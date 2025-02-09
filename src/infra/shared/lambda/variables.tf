@@ -41,7 +41,7 @@ variable "lambda_layers" {
 variable "lambda_ephemeral_storage" {
   description = "Optional ephemeral storage for Lambda function (in MB)"
   type        = number
-  default     = 2048
+  default     = 32
 }
 
 variable "lambda_arch" {
