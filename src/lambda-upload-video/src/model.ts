@@ -12,3 +12,7 @@ export interface Video {
     s3ObjectKey: string;
     timestamp: number;
 }
+
+export type UploadVideoRequest = {
+    videoFileName: string,
+}
