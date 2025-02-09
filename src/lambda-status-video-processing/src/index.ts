@@ -2,6 +2,8 @@ import { getConfigs } from "./config";
 
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { UserData } from "./model";
+import jwt from 'jsonwebtoken';
 
 const configs = getConfigs();
 
@@ -11,19 +13,19 @@ const documentClient = DynamoDBDocumentClient.from(dynamoClient);
 exports.handler = async (event: any) => {
   console.log('event', event);
 
-  const userId = event?.pathParameters?.userId || event?.userId;
-    if (!userId) {
-      return {
-        statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ error: 'Field usedId is required.' }),
-      };
-    }
+  const token = event.headers.Authorization.split(" ")[1];
+  const userData = <UserData | undefined> jwt.decode(token, { complete: true })?.payload;
+  if (!userData?.name || !userData?.email) {
+    return {
+      statusCode: 401,
+      body: JSON.stringify({
+        message: 'Invalid token',
+      }),
+    };
+  }
 
   try {
-    const userVideos = await getUserVideos(userId);
+    const userVideos = await getUserVideos(userData.email);
     console.log('userVideos', userVideos);
 
     if (!userVideos || userVideos.length === 0) {

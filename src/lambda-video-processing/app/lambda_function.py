@@ -29,8 +29,8 @@ def lambda_handler(event, context):
             user_id = message_body['userId']
             video_id = message_body['videoId']
             video_path = message_body['s3ObjectKey']
-            # client_email = message_body['client_email']
-            client_email = 'otavio.sto@gmail.com'
+            client_email = message_body['userEmail']
+            # client_email = 'otavio.sto@gmail.com'
             download_path = os.path.join('/tmp', os.path.basename(video_path))
             output_frames_dir = os.path.join('/tmp', 'frames')
             zip_file_path = os.path.join('/tmp', f'{video_path}.zip')

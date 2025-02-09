@@ -1,5 +1,6 @@
-import { CreateSignedUploadUrlRequest } from "./model";
+import { CreateSignedUploadUrlRequest, UserData } from "./model";
 import { generateSignedUrlForFileUpload } from "./storage.service";
+import jwt from 'jsonwebtoken';
 
 const ALLOWED_FILE_TYPES = [
   'video/mp4',
@@ -11,12 +12,14 @@ const ALLOWED_FILE_TYPES = [
 exports.handler = async (event: any) => {
   console.log('event:', event);
 
-  const userId = event?.pathParameters?.userId || event?.userId;
-  if (!userId) {
+  const token = event.headers.Authorization.split(" ")[1];
+  const userData = <UserData | undefined> jwt.decode(token, { complete: true })?.payload;
+  if (!userData?.name || !userData?.email) {
     return {
-      statusCode: 400,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ error: 'Field usedId is required.' })
+      statusCode: 401,
+      body: JSON.stringify({
+        message: 'Invalid token',
+      }),
     };
   }
 
@@ -40,7 +43,7 @@ exports.handler = async (event: any) => {
     };
   }
 
-  const videoS3Key = `${userId}_${request.videoFileName}`;
+  const videoS3Key = `${userData.email}_${request.videoFileName}`;
   const signedUrl = await generateSignedUrlForFileUpload(videoS3Key, request.videoMimeType);
 
   return {
