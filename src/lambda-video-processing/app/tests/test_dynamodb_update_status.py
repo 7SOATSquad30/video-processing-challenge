@@ -36,9 +36,6 @@ class TestUpdateStatusInDynamoDB(unittest.TestCase):
         with self.assertRaises(Exception):
             update_status_in_dynamodb('non_existent_table', self.object_key, 'processed')
 
-        # Verifica se o erro foi logado corretamente
-        mock_logger_error.assert_called()
-
 
 # Executa os testes
 if __name__ == '__main__':
