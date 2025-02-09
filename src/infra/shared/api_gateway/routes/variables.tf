@@ -17,3 +17,7 @@ variable "integration" {
     content_handling = string
   })
 }
+
+variable "cognito_authorizer_id" {
+  type = string
+}

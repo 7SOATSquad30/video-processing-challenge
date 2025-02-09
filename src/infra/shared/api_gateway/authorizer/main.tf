@@ -49,11 +49,10 @@ resource "aws_api_gateway_authorizer" "cognito_authorizer" {
   identity_source = "method.request.header.Authorization"
 }
 
-resource "aws_api_gateway_method" "methods" {
-  for_each      = aws_api_gateway_resource.resource_3
+/*resource "aws_api_gateway_method" "methods" {
   rest_api_id   = var.api_id
-  resource_id   = each.value.id
-  http_method   = var.routes[tonumber(each.key)].http_method
+  resource_id   = var.video_resource_id
+  http_method   = "GET"
   authorization = "COGNITO_USER_POOLS"
   authorizer_id = aws_api_gateway_authorizer.cognito_authorizer.id
-}
+}*/
