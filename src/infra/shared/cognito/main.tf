@@ -12,7 +12,7 @@ resource "aws_cognito_user_pool" "user_pool" {
 
   alias_attributes = ["preferred_username"]
 
-  auto_verified_attributes = []
+  auto_verified_attributes = ["email"]
 
   mfa_configuration = "OFF"
 
@@ -81,7 +81,7 @@ resource "aws_cognito_user_pool" "user_pool" {
 resource "aws_cognito_user_pool_client" "client" {
   name            = var.client_name
   user_pool_id    = aws_cognito_user_pool.user_pool.id
-  generate_secret = false
+  generate_secret = true
 
   allowed_oauth_flows_user_pool_client = true
   explicit_auth_flows                  = ["ALLOW_ADMIN_USER_PASSWORD_AUTH", "ALLOW_CUSTOM_AUTH", "ALLOW_USER_SRP_AUTH", "ALLOW_REFRESH_TOKEN_AUTH", "ALLOW_USER_PASSWORD_AUTH"]
@@ -91,6 +91,10 @@ resource "aws_cognito_user_pool_client" "client" {
   callback_urls                 = var.callback_urls
   supported_identity_providers  = ["COGNITO"]
   prevent_user_existence_errors = "ENABLED"
+  
+  # Personalização do token para incluir o e-mail no access_token
+  enable_token_revocation = true # Ativa a personalização de tokens
+  enable_propagate_additional_user_context_data = true
 }
 
 # Create a admin group
