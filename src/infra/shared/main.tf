@@ -340,7 +340,7 @@ module "lambda_status_video_processing_api_routes" {
   api_root_resource_id = module.api_gateway.api_root_resource_id
   integration = {
     http_method = "GET"
-    resource_id = module.api_routes.upload_url_resource_id
+    resource_id = module.api_routes.video_resource_id
     integration_type = "AWS_PROXY"
     integration_http_method = "POST"
     integration_uri = module.lambda_status_video_processing.lambda_invoke_arn
