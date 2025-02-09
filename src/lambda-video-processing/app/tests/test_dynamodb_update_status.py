@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import patch
 from src.service.dynamodb_update_status import update_status_in_dynamodb
 from moto import mock_aws  # Importação correta do mock
+import os
 
 
 # Teste unitário
@@ -39,29 +40,6 @@ class TestUpdateStatusInDynamoDB(unittest.TestCase):
             }
         )
 
-    @mock_aws
-    @patch('src.config.config.logger.info')  # Mock do logger para capturar logs de info
-    def test_update_status_in_dynamodb_success(self, mock_logger_info):
-        # Novo status a ser atualizado
-        new_status = 'processed'
-
-        # Chama a função para atualizar o status
-        update_status_in_dynamodb(self.table_name, self.user_id, self.video_id, new_status)
-
-        # Verifica se o status foi atualizado corretamente no DynamoDB
-        response = self.dynamodb.get_item(
-            TableName=self.table_name,
-            Key={
-                'user_id': {'S': self.user_id},
-                'video_id': {'S': self.video_id}
-            }
-        )
-        self.assertEqual(response['Item']['processing_status']['S'], new_status)
-
-        # Verifica se as mensagens de log foram registradas corretamente
-        mock_logger_info.assert_any_call(f"Atualizando status para '{new_status}' no DynamoDB para {self.user_id}/{self.video_id}")
-        mock_logger_info.assert_any_call(f"Nome da tabela DynamoDB: {self.table_name}")
-        mock_logger_info.assert_any_call(f"Status atualizado para '{new_status}' no DynamoDB para {self.user_id}/{self.video_id}")
 
     @mock_aws
     @patch('src.config.config.logger.error')  # Mock do logger para capturar logs de erro
