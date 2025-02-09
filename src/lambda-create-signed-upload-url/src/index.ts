@@ -14,7 +14,8 @@ exports.handler = async (event: any) => {
 
   const token = event.headers.Authorization.split(" ")[1];
   const userData = <UserData | undefined> jwt.decode(token, { complete: true })?.payload;
-  if (!userData?.name || !userData?.email) {
+  console.log('user', userData);
+  if (!userData?.email) {
     return {
       statusCode: 401,
       body: JSON.stringify({
