@@ -8,7 +8,8 @@
     "build": "tsc && zip -r -4 build.zip . -i 'dist/*' -i 'node_modules/*' -i 'package.json'",
     "upload": "aws lambda update-function-code --endpoint-url http://localhost:4566 --function-name lambda-create-signed-upload-url --zip-file fileb://build.zip",
     "build:upload": "npm run build && npm run upload",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:ci": "jest --coverage"
   },
   "keywords": [],
   "author": "",
@@ -19,8 +20,12 @@
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.8",
     "@types/node": "^22.12.0",
+    "jest": "^29.7.0",
+    "jest-environment-node": "^29.7.0",
+    "ts-jest": "^29.2.5",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.7.3"
   }
