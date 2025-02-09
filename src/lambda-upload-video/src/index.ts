@@ -7,8 +7,12 @@ import jwt from 'jsonwebtoken';
 exports.handler = async (event: any) => {
     console.log('Event:', event);
 
+    console.log(event.headers.Authorization);
     const token = event.headers.Authorization.split(" ")[1];
-    const userData = <UserData | undefined> jwt.decode(token, { complete: true })?.payload;
+    console.log('token', token);
+    const decoded = jwt.decode(token, { complete: true });
+    console.log('decoded', decoded);
+    const userData = <UserData | undefined> decoded?.payload;
     if (!userData?.email) {
       return {
         statusCode: 401,
