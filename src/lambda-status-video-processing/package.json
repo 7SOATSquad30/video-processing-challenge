@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsnd ./src/index.ts",
-    "test": "jest",
+    "test": "jest --coverage",
     "build": "tsc && zip -r -4 build.zip . -i 'dist/*' -i 'node_modules/*' -i 'package.json'",
     "upload": "aws lambda update-function-code --endpoint-url http://localhost:4566 --function-name lambda-status-video-processing --zip-file fileb://build.zip",
     "build:upload": "npm run build && npm run upload"
