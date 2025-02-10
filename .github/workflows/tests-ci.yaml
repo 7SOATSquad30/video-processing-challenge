@@ -10,9 +10,6 @@ jobs:
     test:
         name: test
         runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                node-version: [18.x]
             
         steps:
             - uses: actions/checkout@v3
@@ -21,23 +18,19 @@ jobs:
               uses: actions/cache@v3
               with:
                     path: ~/.npm
-                    key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+                    key: ${{ runner.os }}-node-22.x-${{ hashFiles('**/package-lock.json') }}
                     restore-keys: |
-                      ${{ runner.os }}-node-${{ matrix.node-version }}-
+                      ${{ runner.os }}-node-22.x-
             
-            - name: Use Node.js ${{ matrix.node-version }}
+            - name: Use Node.js 22.x
               uses: actions/setup-node@v3
               with:
-                  node-version: ${{ matrix.node-version }}
-            
-            - name: step
-              run: pwd
+                  node-version: 22.x
 
             - name: Install dependencies
-              run: cd /home/runner/work/video-processing-challenge/video-processing-challenge/src/lambda-create-signed-upload-url && npm ci
-
-            #- name: Increase Node.js memory limit
-            #  run: export NODE_OPTIONS="--max-old-space-size=4096"
+              working-directory: ./src/lambda-create-signed-upload-url
+              run: npm ci
 
             - name: Unit tests
+              working-directory: ./src/lambda-create-signed-upload-url
               run: npm run test:ci
