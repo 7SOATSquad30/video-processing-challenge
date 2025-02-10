@@ -4,7 +4,7 @@ import { saveVideo } from "./video.repository";
 import { notifyNewVideoToBeProcessed } from "./messaging.service";
 import jwt from 'jsonwebtoken';
 
-exports.handler = async (event: any) => {
+export const handler = async (event: any) => {
     console.log('Event:', event);
 
     console.log(event.headers.Authorization);
