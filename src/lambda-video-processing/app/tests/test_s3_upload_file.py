@@ -3,6 +3,7 @@ from moto import mock_aws
 import pytest
 from unittest.mock import patch
 from src.service.s3_upload_file import upload_file_to_s3
+import uuid  # Adicionado para gerar nomes únicos
 
 
 # Configura o mock do S3
@@ -13,7 +14,7 @@ class TestUploadFileToS3:
     @mock_aws
     def test_upload_file_to_s3_success(self):
         # Configura o mock do S3
-        bucket_name = 'test-bucket'
+        bucket_name = f'test-bucket-{uuid.uuid4().hex}'  # Nome único para o bucket
         object_key = 'test_file.txt'
         file_path = '/tmp/test_file.txt'
 
@@ -35,7 +36,7 @@ class TestUploadFileToS3:
     @patch('src.config.config.logger.error')
     def test_upload_file_to_s3_file_not_found(self, mock_logger_error):
         # Configura o mock do S3
-        bucket_name = 'test-bucket'
+        bucket_name = f'test-bucket-{uuid.uuid4().hex}'  # Nome único para o bucket
         object_key = 'test_file.txt'
         file_path = '/tmp/non_existent_file.txt'  # Arquivo que não existe
 
@@ -53,7 +54,7 @@ class TestUploadFileToS3:
     @patch('src.config.config.logger.error')
     def test_upload_file_to_s3_bucket_not_found(self, mock_logger_error):
         # Configura o mock do S3
-        bucket_name = 'non_existent_bucket'  # Bucket que não existe
+        bucket_name = f'non_existent_bucket-{uuid.uuid4().hex}'  # Bucket que não existe
         object_key = 'test_file.txt'
         file_path = '/tmp/test_file.txt'
 
