@@ -2,7 +2,7 @@ import { UserData } from "./model";
 import jwt from 'jsonwebtoken';
 import { getUserVideos } from "./videos.repository";
 
-export const handler = async (event: any) => {
+exports.handler = async (event: any) => {
   console.log('event', event);
 
   const token = event.headers.Authorization.split(" ")[1];

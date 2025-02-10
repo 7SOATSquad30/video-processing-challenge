@@ -1,7 +1,7 @@
-import * as index from "../src/index";
 import jwt from 'jsonwebtoken';
 
 import * as videosRepository from "../src/videos.repository";
+const handler = require("../src/index").handler;
 
 jest.mock('../src/videos.repository');
 
@@ -26,7 +26,6 @@ jest.mock("@aws-sdk/lib-dynamodb", () => ({
     QueryCommand: jest.fn(),
 }));
 
-const handler = index.handler;
 
 const encodeJwt = (payload: Record<string, any>) => {
     return jwt.sign(payload, 'whatever', { expiresIn: "1h" });
