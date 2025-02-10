@@ -34,7 +34,7 @@ jobs:
               run: pwd
 
             - name: Install dependencies
-              run: cd src/lambda-create-signed-upload-url && npm ci
+              run: cd /home/runner/work/video-processing-challenge/video-processing-challenge/src/lambda-create-signed-upload-url && npm ci
 
             #- name: Increase Node.js memory limit
             #  run: export NODE_OPTIONS="--max-old-space-size=4096"
