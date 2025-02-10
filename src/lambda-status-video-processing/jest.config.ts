@@ -8,7 +8,7 @@ export default {
   coverageReporters: ["json", "lcov"],
   coverageThreshold: {
     global: {
-      lines: 80,
+      lines: 90,
     },
   },
 };
