@@ -1,4 +1,3 @@
-
 name: Tests CI
 
 on:
@@ -34,3 +33,12 @@ jobs:
             - name: Unit tests
               working-directory: ./src/lambda-create-signed-upload-url
               run: npm run test:ci
+
+            - name: Check test coverage
+              working-directory: ./src/lambda-create-signed-upload-url
+              run: |
+                COVERAGE=$(npm run coverage --silent)
+                if [ "$COVERAGE" -lt 80 ]; then
+                  echo "Test coverage is below 80%"
+                  exit 1
+                fi
