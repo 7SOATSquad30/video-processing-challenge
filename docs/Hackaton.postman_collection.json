@@ -1,0 +1,376 @@
+{
+	"info": {
+		"_postman_id": "22f52a82-4ac3-4cd7-b609-b23640aea8ec",
+		"name": "Hackaton",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1765293",
+		"_collection_link": "https://orange-station-806523.postman.co/workspace/Web-Services-Nonio~749af291-9949-4efe-9fef-50787a6a2105/collection/1765293-22f52a82-4ac3-4cd7-b609-b23640aea8ec?action=share&source=collection_link&creator=1765293"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "tokenName",
+							"value": "Hackaton",
+							"type": "string"
+						},
+						{
+							"key": "clientId",
+							"value": "t6ipo5bstv5gt17dgvj2fql9r",
+							"type": "string"
+						},
+						{
+							"key": "authUrl",
+							"value": "https://video-challenging-domain.auth.us-east-1.amazoncognito.com/login?client_id=t6ipo5bstv5gt17dgvj2fql9r&response_type=token&scope=email+openid+profile&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback",
+							"type": "string"
+						},
+						{
+							"key": "authRequestParams",
+							"value": [
+								{
+									"key": "client_secret",
+									"value": "1euggple1e713qamhrnt1kv0dnnvcsk3kgj6r44rp8h1dmspu2ck",
+									"enabled": true,
+									"send_as": "request_url"
+								},
+								{
+									"key": "client_id",
+									"value": "50qet2lmbtigftll8vccen1ogf",
+									"enabled": true,
+									"send_as": "request_url"
+								}
+							],
+							"type": "any"
+						},
+						{
+							"key": "client_authentication",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "tokenType",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "scope",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "useBrowser",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "state",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "grant_type",
+							"value": "implicit",
+							"type": "string"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https://example.com/callback",
+							"type": "string"
+						},
+						{
+							"key": "accessTokenUrl",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "clientSecret",
+							"value": "1euggple1e713qamhrnt1kv0dnnvcsk3kgj6r44rp8h1dmspu2ck",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://video-challenging-domain.auth.us-east-1.amazoncognito.com/login?client_id=t6ipo5bstv5gt17dgvj2fql9r&response_type=token&scope=email+openid+profile&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback",
+					"protocol": "https",
+					"host": [
+						"video-challenging-domain",
+						"auth",
+						"us-east-1",
+						"amazoncognito",
+						"com"
+					],
+					"path": [
+						"login"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "t6ipo5bstv5gt17dgvj2fql9r"
+						},
+						{
+							"key": "response_type",
+							"value": "token"
+						},
+						{
+							"key": "scope",
+							"value": "email+openid+profile"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https%3A%2F%2Fexample.com%2Fcallback"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generate Signed Upload URL",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer <id_token aqui>"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"videoFileName\": \"latinhas_hackaton2.mp4\", \"videoMimeType\": \"video/mp4\" }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://rnlorcdfsk.execute-api.us-east-1.amazonaws.com/v1/users/1/signedUploadUrl",
+					"protocol": "https",
+					"host": [
+						"rnlorcdfsk",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"v1",
+						"users",
+						"1",
+						"signedUploadUrl"
+					]
+				},
+				"description": "Generated from cURL: curl -H \"Content-Type: application/json\" \\\r\n  -H \"Authorization: Bearer <id_token aqui>\" \\\r\n  -X POST \"https://rnlorcdfsk.execute-api.us-east-1.amazonaws.com/v1/users/1/signedUploadUrl\" \\\r\n  --data '{ \"videoFileName\": \"latinhas_2.mp4\", \"videoMimeType\": \"video/mp4\" }'\r\n"
+			},
+			"response": []
+		},
+		{
+			"name": "Upload Video",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/gabri/OneDrive/Documentos/Hackaton/latinhas_3.mp4"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://output-arquivos-videos.s3.us-east-1.amazonaws.com/reliablemaildelivery%40gmail.com_latinhas_3.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIA2CDLEX5NXQDBQIKZ%2F20250210%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250210T023940Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEJv%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJHMEUCIQDto3Lep77l%2Fcwl5nmtKTyw8d1Spo7uYGAN41JVi5ROigIgIDAUlc717%2BegRUbgz%2B7cSgB2Y5JDddGTOP%2BO8m8WoGgqnAMItP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARADGgw2OTE3MTQ0NDEwNTEiDCqxqTVY1DtIRUZ5jirwAgGXjtqSS77jSM2kUEr0Oo1FYQPqwsy3XzM44XzK1XhpK2nbVxRBuFXNTBl22cDOhmyRx2GsbSbGmfFrF%2F46dARZ0Lw3CC9DnQGxPjbROs%2Bil1jR6rarGzbpoAE8qjowR%2F%2BDbxjH1CVy69XN0PI8GuVQcp4GHJjryVoQw3v2Mxsl%2F3UOZ%2FIQNji2%2FxEevjufAa6oboVKtGU%2BAVjZVp55V0Lw3kQ6lTj25x9ahnAqC7bQFWuiVJbfGwVVXmgzYvU1yRjN%2B7sqtpTDlZhphKJIBOUhQGldQDuve6GvruUKagSd8babYaCu86bSZuVC3XU0kY%2FVTk4%2B8ALasmUpeWfu%2B8XYySpDXu0%2FD8ygo2e3qqooJ8hmXopWRa6fRXJwkzgtizIcYdoDcez%2FTYgbnVAisDmk2OvdrhVyMXoEgdNke0boxK%2FlId3l9Cc6QgJ%2FP32bKHMbjcVQHMPxqSuqnQsAmfpUYm%2FtgpprXy2r49UHA2EoMOvNpb0GOp0B3d9BkMk6RwKwHFl6RTGuJvfGZGpN8XALHF15JzPwk5Gqp9GGCFwdhPgiCb5zAaTYoffcT32lGrjkhjpsTwvl3KN46XGPfS%2BeYeQQJkd%2F2EuEyi2IiBqh5gp12PCsKW7ep%2FSnIhVnXzjqgRb8x0h5UXkfkI90KzYqwTBLZGIEgz0WAZi1wC3WhH54soDGTHAVXynruZ1klxiMBXfOGQ%3D%3D&X-Amz-Signature=16b8149e28635610eaf92bf65f46a3e222b4bfb0487940948fa933d4066bc9a3&X-Amz-SignedHeaders=host&x-amz-checksum-crc32=AAAAAA%3D%3D&x-amz-sdk-checksum-algorithm=CRC32&x-id=PutObject",
+					"protocol": "https",
+					"host": [
+						"output-arquivos-videos",
+						"s3",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"reliablemaildelivery%40gmail.com_latinhas_3.mp4"
+					],
+					"query": [
+						{
+							"key": "X-Amz-Algorithm",
+							"value": "AWS4-HMAC-SHA256"
+						},
+						{
+							"key": "X-Amz-Content-Sha256",
+							"value": "UNSIGNED-PAYLOAD"
+						},
+						{
+							"key": "X-Amz-Credential",
+							"value": "ASIA2CDLEX5NXQDBQIKZ%2F20250210%2Fus-east-1%2Fs3%2Faws4_request"
+						},
+						{
+							"key": "X-Amz-Date",
+							"value": "20250210T023940Z"
+						},
+						{
+							"key": "X-Amz-Expires",
+							"value": "3600"
+						},
+						{
+							"key": "X-Amz-Security-Token",
+							"value": "IQoJb3JpZ2luX2VjEJv%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJHMEUCIQDto3Lep77l%2Fcwl5nmtKTyw8d1Spo7uYGAN41JVi5ROigIgIDAUlc717%2BegRUbgz%2B7cSgB2Y5JDddGTOP%2BO8m8WoGgqnAMItP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARADGgw2OTE3MTQ0NDEwNTEiDCqxqTVY1DtIRUZ5jirwAgGXjtqSS77jSM2kUEr0Oo1FYQPqwsy3XzM44XzK1XhpK2nbVxRBuFXNTBl22cDOhmyRx2GsbSbGmfFrF%2F46dARZ0Lw3CC9DnQGxPjbROs%2Bil1jR6rarGzbpoAE8qjowR%2F%2BDbxjH1CVy69XN0PI8GuVQcp4GHJjryVoQw3v2Mxsl%2F3UOZ%2FIQNji2%2FxEevjufAa6oboVKtGU%2BAVjZVp55V0Lw3kQ6lTj25x9ahnAqC7bQFWuiVJbfGwVVXmgzYvU1yRjN%2B7sqtpTDlZhphKJIBOUhQGldQDuve6GvruUKagSd8babYaCu86bSZuVC3XU0kY%2FVTk4%2B8ALasmUpeWfu%2B8XYySpDXu0%2FD8ygo2e3qqooJ8hmXopWRa6fRXJwkzgtizIcYdoDcez%2FTYgbnVAisDmk2OvdrhVyMXoEgdNke0boxK%2FlId3l9Cc6QgJ%2FP32bKHMbjcVQHMPxqSuqnQsAmfpUYm%2FtgpprXy2r49UHA2EoMOvNpb0GOp0B3d9BkMk6RwKwHFl6RTGuJvfGZGpN8XALHF15JzPwk5Gqp9GGCFwdhPgiCb5zAaTYoffcT32lGrjkhjpsTwvl3KN46XGPfS%2BeYeQQJkd%2F2EuEyi2IiBqh5gp12PCsKW7ep%2FSnIhVnXzjqgRb8x0h5UXkfkI90KzYqwTBLZGIEgz0WAZi1wC3WhH54soDGTHAVXynruZ1klxiMBXfOGQ%3D%3D"
+						},
+						{
+							"key": "X-Amz-Signature",
+							"value": "16b8149e28635610eaf92bf65f46a3e222b4bfb0487940948fa933d4066bc9a3"
+						},
+						{
+							"key": "X-Amz-SignedHeaders",
+							"value": "host"
+						},
+						{
+							"key": "x-amz-checksum-crc32",
+							"value": "AAAAAA%3D%3D"
+						},
+						{
+							"key": "x-amz-sdk-checksum-algorithm",
+							"value": "CRC32"
+						},
+						{
+							"key": "x-id",
+							"value": "PutObject"
+						}
+					]
+				},
+				"description": "Generated from cURL: curl -X PUT -T ~/Downloads/latinhas_2.mp4 \\\r\n  \"<url pré assinada do S3 aqui>\"\r\n"
+			},
+			"response": []
+		},
+		{
+			"name": "Init Proccess",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer <id_token aqui>"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"videoFileName\": \"latinhas_hackaton2.mp4\" }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://rnlorcdfsk.execute-api.us-east-1.amazonaws.com/v1/users/1/videos",
+					"protocol": "https",
+					"host": [
+						"rnlorcdfsk",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"v1",
+						"users",
+						"1",
+						"videos"
+					]
+				},
+				"description": "Generated from cURL: curl -H \"Content-Type: application/json\" \\\r\n  -H \"Authorization: Bearer <id_token aqui>\" \\\r\n  -X POST \"https://rnlorcdfsk.execute-api.us-east-1.amazonaws.com/v1/users/1/videos\" \\\r\n  --data '{ \"videoFileName\": \"latinhas_2.mp4\" }'\r\n"
+			},
+			"response": []
+		},
+		{
+			"name": "List",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer <id_token aqui>"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://rnlorcdfsk.execute-api.us-east-1.amazonaws.com/v1/users/1/videos",
+					"protocol": "https",
+					"host": [
+						"rnlorcdfsk",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"v1",
+						"users",
+						"1",
+						"videos"
+					]
+				},
+				"description": "Generated from cURL: curl -H \"Content-Type: application/json\" \\\r\n  -H \"Authorization: Bearer <id_token aqui>\" \\\r\n  -X POST \"https://rnlorcdfsk.execute-api.us-east-1.amazonaws.com/v1/users/1/videos\" \\\r\n  --data '{ \"videoFileName\": \"latinhas_2.mp4\" }'\r\n"
+			},
+			"response": []
+		}
+	]
+}
