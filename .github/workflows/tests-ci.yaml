@@ -38,7 +38,7 @@ jobs:
               working-directory: ./src/lambda-create-signed-upload-url
               run: |
                 COVERAGE=$(npm run test:ci --silent)
-                if [ "$COVERAGE" -lt 80 ]; then
-                  echo "Test coverage is below 80%"
+                if [ "$COVERAGE" -lt 90 ]; then
+                  echo "Test coverage is below 90%"
                   exit 1
                 fi
