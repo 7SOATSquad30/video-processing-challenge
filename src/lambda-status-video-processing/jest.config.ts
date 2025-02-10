@@ -6,4 +6,9 @@ export default {
   collectCoverage: true,
   coverageDirectory: "coverage",
   coverageReporters: ["json"],
+  coverageThreshold: {
+    global: {
+      lines: 80,
+    },
+  },
 };
