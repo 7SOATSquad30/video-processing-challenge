@@ -57,7 +57,7 @@ jobs:
 
   test-infra:
     runs-on: ubuntu-latest
-    needs: tests-lambda-video-processing
+    needs: [tests-lambda-video-processing]
 
     steps:
       - name: Checkout do repositório
