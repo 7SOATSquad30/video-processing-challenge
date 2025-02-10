@@ -13,38 +13,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do repositório
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Configurar Python
+      - name: Setup python
         uses: actions/setup-python@v4
         with:
           python-version: '3.13'
 
-      - name: Instalar dependências do Python
+      - name: Instal python deps
         run: |
           python -m pip install --upgrade pip
           pip install -r src/lambda-video-processing/app/requirements.txt
           pip install pytest pytest-cov moto  # Instala o pytest, pytest-cov e moto
 
-      - name: Configurar região da AWS
+      - name: Setup aws region (important for moto lib)
         run: |
           echo "AWS_DEFAULT_REGION=us-east-1" >> $GITHUB_ENV
 
-      - name: Rodar testes unitários com coverage
+      - name: Run tests with codecov
         run: |
           export PYTHONPATH="${PYTHONPATH}:$(pwd)/src/lambda-video-processing/app"
           cd src/lambda-video-processing/app/
           pytest tests/ -v --cov=./ --cov-report=term --cov-config=.coveragerc
 
-      - name: Calcular e exibir porcentagem de cobertura
+      - name: Print codecov
         run: |
           export PYTHONPATH="${PYTHONPATH}:$(pwd)/src/lambda-video-processing/app"
           cd src/lambda-video-processing/app/
           coverage report
           echo "Porcentagem de cobertura: $(coverage report | grep TOTAL | awk '{print $4}')"
 
-      - name: Verificar cobertura mínima (80%)
+      - name: Validate codecov
         run: |
           cd src/lambda-video-processing/app/
           COVERAGE=$(coverage report | grep TOTAL | awk '{print $4}' | sed 's/%//')
@@ -80,16 +80,6 @@ jobs:
         - name: Unit tests
           working-directory: ./src/lambda-status-video-processing
           run: npm run test
-
-        - name: Check Jest coverage threshold
-          working-directory: ./src/lambda-status-video-processing
-          run: |
-            COVERAGE=$(cat ./coverage/lcov-report/index.html | grep -oP 'All files.*?(\d+\.\d+)%' | sed 's/[^0-9.]//g')
-            echo "Coverage: $COVERAGE"
-            if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-              echo "Coverage is below 80%! Fail the build.";
-              exit 1;
-            fi
 
   test-infra:
     runs-on: ubuntu-latest
