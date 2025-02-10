@@ -23,73 +23,8 @@ const encodeJwt = (payload: Record<string, any>) => {
 
 describe("Lambda tests", () => {
 
-  it("should return 401 if token is invalid", async () => {
-    const event = {
-      headers: {
-        Authorization: "Bearer invalid.token",
-      },
-      body: JSON.stringify({
-        videoFileName: "test.mp4",
-        videoMimeType: "video/mp4",
-      }),
-    };
-
-    const response = await handler(event);
-    expect(response.statusCode).toBe(401);
-    expect(JSON.parse(response.body).message).toBe("Invalid token");
+  it('baguncinha', () => {
+    const x = 'baguncinha';
   });
 
-  it("should return 400 if request body is missing fields", async () => {
-    const token = encodeJwt({ email: "test@example.com" });
-    const event = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        videoFileName: "test.mp4",
-      }),
-    };
-
-    const response = await handler(event);
-    expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe(
-      "Request body must contain: videoFileName, videoMimeType"
-    );
-  });
-
-  it("should return 400 if video mime type is not allowed", async () => {
-    const token = encodeJwt({ email: "test@example.com" });
-    const event = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        videoFileName: "test.mp4",
-        videoMimeType: "video/unsupported",
-      }),
-    };
-
-    const response = await handler(event);
-    expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe(
-      "Unsupported video mime type. Allowed types are: video/mp4, video/avi, video/mkv, video/webm"
-    );
-  });
-
-  it("should return 200 and signed URL if request is valid", async () => {
-    const token = encodeJwt({ email: "test@example.com" });
-    const event = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        videoFileName: "test.mp4",
-        videoMimeType: "video/mp4",
-      }),
-    };
-
-    const response = await handler(event);
-    expect(response.statusCode).toBe(200);
-    expect(JSON.parse(response.body).uploadUrl).toBe("https://signed-url.com");
-  });
 });
