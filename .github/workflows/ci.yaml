@@ -81,9 +81,61 @@ jobs:
           working-directory: ./src/lambda-status-video-processing
           run: npm run test
 
+  tests-lambda-create-signed-upload-url:
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v3
+
+        - name: Cache Node.js modules
+          uses: actions/cache@v3
+          with:
+                path: ~/.npm
+                key: ${{ runner.os }}-node-22.x-${{ hashFiles('**/package-lock.json') }}
+                restore-keys: |
+                  ${{ runner.os }}-node-22.x-
+
+        - name: Use Node.js 22.x
+          uses: actions/setup-node@v3
+          with:
+              node-version: 22.x
+
+        - name: Install dependencies
+          working-directory: ./src/lambda-create-signed-upload-url
+          run: npm ci --save-dev
+
+        - name: Unit tests
+          working-directory: ./src/lambda-create-signed-upload-url
+          run: npm run test:ci
+      
+  tests-lambda-upload-video:
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v3
+
+        - name: Cache Node.js modules
+          uses: actions/cache@v3
+          with:
+                path: ~/.npm
+                key: ${{ runner.os }}-node-22.x-${{ hashFiles('**/package-lock.json') }}
+                restore-keys: |
+                  ${{ runner.os }}-node-22.x-
+
+        - name: Use Node.js 22.x
+          uses: actions/setup-node@v3
+          with:
+              node-version: 22.x
+
+        - name: Install dependencies
+          working-directory: ./src/lambda-upload-video
+          run: npm ci --save-dev
+
+        - name: Unit tests
+          working-directory: ./src/lambda-upload-video
+          run: npm run test:ci
+
   test-infra:
     runs-on: ubuntu-latest
-    needs: [tests-lambda-video-processing, tests-lambda-status-video-processing]
+    needs: [tests-lambda-video-processing, tests-lambda-status-video-processing, tests-lambda-create-signed-upload-url, tests-lambda-upload-video]
 
     steps:
       - name: Checkout do repositório
