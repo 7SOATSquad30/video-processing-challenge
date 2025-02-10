@@ -1,9 +1,9 @@
-import { handler } from "../src/index";
 import * as storageService from "../src/storage.service";
 import * as videoRepository from "../src/video.repository";
 import * as messagingService from "../src/messaging.service";
 import jwt from "jsonwebtoken";
 import { jest } from "@jest/globals";
+const handler = require("../src/index").handler;
 
 jest.mock("../src/storage.service", () => ({
   generateSignedUrlForFileUpload: jest.fn(),

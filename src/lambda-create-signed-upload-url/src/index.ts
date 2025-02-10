@@ -9,7 +9,7 @@ const ALLOWED_FILE_TYPES = [
   'video/webm',
 ];
 
-export const handler = async (event: any) => {
+exports.handler = async (event: any) => {
   console.log('event:', event);
 
   const token = event.headers.Authorization.split(" ")[1];

@@ -1,5 +1,5 @@
-import * as index from "../src/index";
 import jwt from "jsonwebtoken";
+const handler = require("../src/index").handler;
 
 jest.mock("../src/config", () => ({
   getConfigs: jest.fn().mockReturnValue({
@@ -16,8 +16,6 @@ jest.mock("../src/storage.service", () => ({
     .fn()
     .mockResolvedValue("https://signed-url.com"),
 }));
-
-const handler = index.handler;
 
 const encodeJwt = (payload: Record<string, any>) => {
   return jwt.sign(payload, "whatever", { expiresIn: "1h" });
