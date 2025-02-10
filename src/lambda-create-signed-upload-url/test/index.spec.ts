@@ -25,7 +25,7 @@ const encodeJwt = (payload: Record<string, any>) => {
 
 describe("Lambda tests", () => {
 
-  /*it("should return 401 if token is invalid", async () => {
+  it("should return 401 if token is invalid", async () => {
     const event = {
       headers: {
         Authorization: "Bearer invalid.token",
@@ -76,7 +76,7 @@ describe("Lambda tests", () => {
     expect(JSON.parse(response.body).message).toBe(
       "Unsupported video mime type. Allowed types are: video/mp4, video/avi, video/mkv, video/webm"
     );
-  });*/
+  });
 
   it("should return 200 and signed URL if request is valid", async () => {
     const token = encodeJwt({ email: "test@example.com" });

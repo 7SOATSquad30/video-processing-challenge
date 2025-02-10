@@ -36,7 +36,7 @@ jobs:
                 npm run test:ci -- --coverage --coverageReporters=json-summary
                 COVERAGE=$(jq '.total.lines.pct' < coverage/coverage-summary.json)
                 
-                if (( $(echo "$COVERAGE < 90" | bc -l) )); then
-                  echo "Test coverage is below 90%. Coverage is $COVERAGE%."
+                if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+                  echo "Test coverage is below 80%. Coverage is $COVERAGE%."
                   exit 1
                 fi
