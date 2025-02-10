@@ -33,12 +33,14 @@ jobs:
             - name: Unit tests
               working-directory: ./src/lambda-create-signed-upload-url
               run: npm run test:ci
-
+            
             - name: Check test coverage
               working-directory: ./src/lambda-create-signed-upload-url
               run: |
-                COVERAGE=$(npm run test:ci --silent | grep -oP 'All files\s*\|\s*\K\d+(?=%)')
-                if [ "$COVERAGE" -lt 80 ]; then
-                  echo "Test coverage is below 80%"
+                npm run test:ci --coverageReporters=json-summary
+                COVERAGE=$(jq '.total.lines.pct' < ./coverage/coverage-summary.json)
+                
+                if (( $(echo "$COVERAGE < 90" | bc -l) )); then
+                  echo "Test coverage is below 90% ($COVERAGE%)"
                   exit 1
                 fi
